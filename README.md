@@ -116,6 +116,6 @@ ai-simple--skill-product-dev/
 
 ## Đóng góp / Contributing
 
-Mở issue/PR nếu có pattern hay từ project của bạn. Không cần leak code/business — chỉ cần share **pattern** đã work.
+Mở issue/PR nếu có **pattern** hay từ project của bạn — chỉ cần phương pháp đã work, không cần kèm code thực tế.
 
-Open an issue/PR with patterns from your own project. No need to leak code/business — share **patterns** that worked.
+Open an issue/PR with **patterns** from your own project — only the approach that worked, no real code needed.

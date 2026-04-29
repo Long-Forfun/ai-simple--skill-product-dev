@@ -135,8 +135,8 @@ Note vào memory file (vd `memory/feedback_db_safety.md`):
   / delete edge fn như side-effect của bất kỳ task nào.
 - Khi user nói "fix bug X" mà fix cần migration → DỪNG, đề xuất plan
   migration riêng, đợi user duyệt explicit.
-- Solar + lunar / created_at + updated_at / từng cặp field phải đi
-  cùng nhau (luôn travel as pair).
+- Các cặp field (vd `start_date + end_date`, `created_at + updated_at`)
+  phải luôn đi cùng nhau (travel as pair).
 ```
 
 ### EN
@@ -146,8 +146,8 @@ Persist to a memory file (e.g. `memory/feedback_db_safety.md`):
   cron / delete edge fns as side-effect of any task.
 - When user says "fix bug X" but the fix needs migration → STOP,
   propose a separate migration plan, wait for explicit user approval.
-- Paired fields (solar + lunar, created_at + updated_at, etc.) must
-  always travel as a pair.
+- Paired fields (e.g. `start_date + end_date`, `created_at + updated_at`)
+  must always travel as a pair.
 ```
 
 ---

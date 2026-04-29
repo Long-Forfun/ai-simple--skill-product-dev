@@ -1,0 +1,131 @@
+# CLAUDE.md — <PROJECT_NAME>
+
+> <ONE_LINE_PROJECT_DESCRIPTION>
+
+## Tech Stack
+- Frontend: <e.g. React 18 + Vite + TypeScript>
+- Backend: <e.g. Supabase / Node + Postgres>
+- Mobile: <e.g. Capacitor / React Native / N/A>
+- Hosting: <e.g. Vercel / Cloudflare / self-hosted>
+
+## Cấu trúc / Structure
+```
+<PROJECT_ROOT>/
+├── src/
+│   ├── <module-1>/    CLAUDE.md
+│   ├── <module-2>/    CLAUDE.md
+│   └── ...
+├── docs/
+│   ├── app-map/       canonical specs (xem README ở trong)
+│   └── decisions/     ADR
+└── tests/
+```
+
+## Quy tắc viết code / Code rules
+1. <e.g. TypeScript strict mode>
+2. <e.g. Function components only>
+3. <e.g. Mobile-first responsive>
+4. <e.g. Error handling with toast>
+5. ...
+
+## Commit convention
+```
+<type>(<scope>): <subject in present tense>
+
+Types: feat, fix, refactor, style, perf, test, docs, chore
+```
+
+## KHÔNG ĐƯỢC phép / NEVER
+- Hardcode secret / API key
+- Skip error handling cho async
+- Bypass auth/RLS
+- Auto-touch prod DB / migration / cron / edge fn
+- Code mà không update doc + test (xem invariant dưới)
+
+## BẮT BUỘC phải / ALWAYS
+- Validate input
+- Show loading state
+- Update doc + test CÙNG commit với code
+- Trước feature lớn: đọc `docs/app-map/21-feature-workflow.md` (nếu có)
+- Trước test: đọc `docs/app-map/22-test-organization.md` (nếu có)
+
+---
+
+## Doc + Test sync — INVARIANT (không thoả hiệp)
+
+| Code change | Doc bắt buộc update |
+|---|---|
+| Thêm/xoá file `src/<module>/` | `src/<module>/CLAUDE.md` |
+| Route mới | `docs/app-map/01-pages.md` |
+| Dialog/Form | `docs/app-map/02-dialogs.md` |
+| Migration | `docs/app-map/03-database.md` |
+| Edge function | `docs/app-map/04-edge-functions.md` |
+| Permission/role | `docs/app-map/05-permissions.md` |
+| Flow mới | `docs/app-map/06-user-flows.md` |
+| Quyết định kiến trúc | ADR `docs/decisions/NNNN-*.md` |
+
+| Code change | Test bắt buộc |
+|---|---|
+| Hook/util | Unit test |
+| Component có interaction | Component test |
+| Page/flow mới | E2E test |
+| Bug fix | Regression test `bug-fix-verify-YYYY-MM-DD.spec.*` |
+| Permission/RLS | E2E với role matrix |
+
+→ Skip test chỉ cho phép cho: pure UI tweak (color/spacing/copy), config-only, doc-only. Note rõ trong commit message.
+
+### Verify checklist trước khi xong task
+- [ ] Doc updates đã đủ
+- [ ] Test updates đã đủ
+- [ ] Module CLAUDE.md count khớp `ls`
+- [ ] Cross-ref vào index có đầy đủ
+- [ ] `lint` + `test` pass
+
+→ Miss bất kỳ checkpoint = task chưa xong.
+
+---
+
+## Module Context Files
+Khi làm việc trong module → đọc CLAUDE.md tương ứng:
+- `src/<module-1>/CLAUDE.md` — <one-line>
+- `src/<module-2>/CLAUDE.md` — <one-line>
+- ...
+
+## Context routing — `/fl <task>`
+Trước khi sửa/dev → gọi:
+```
+/fl <mô tả task>
+```
+→ Spawn `context-router` agent → output ordered list `.md` cần đọc + pre-flight flags.
+
+Agent: `.claude/agents/context-router.md`. Slash: `.claude/commands/fl.md`.
+
+## Workflow trọng yếu
+- Feature mới → `docs/app-map/21-feature-workflow.md`
+- Test → `docs/app-map/22-test-organization.md`
+
+## Quick commands
+```bash
+npm run dev
+npm run build
+npm run lint
+npm run test
+npm run test:e2e
+```
+
+---
+
+## Memory (cross-session preferences)
+- [<feedback_X>](memory/feedback_X.md) — <one-line>
+- [<project_Y>](memory/project_Y.md) — <one-line>
+
+---
+
+## Context window management
+- File này < 6000 tokens
+- Tham chiếu module/app-map thay vì paste content
+- Nếu vượt → tách ra app-map mới
+
+---
+
+**Last Updated**: <YYYY-MM-DD>

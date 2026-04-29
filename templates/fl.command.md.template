@@ -1,0 +1,18 @@
+---
+description: Phân tích task → output files context cần đọc trước khi code (gọi context-router agent)
+argument-hint: <mô tả task / task description>
+---
+
+Spawn `context-router` agent với task description sau:
+
+**Task**: $ARGUMENTS
+
+Agent sẽ:
+1. Classify domain (auth/db/ui/...)
+2. Output ordered list `.md` files cần đọc + lý do mỗi file
+3. Flag pre-flight risks (DB / auth / migration / cross-module / LOGIC vs REQUEST)
+4. Đưa câu confirm cụ thể trước khi code
+
+KHÔNG code, KHÔNG explore source code. Chỉ ROUTE context.
+
+Sau khi agent trả output → tôi sẽ review list, đọc các file đó, rồi confirm với user trước khi tiếp tục.

@@ -1,0 +1,76 @@
+# ADR <NNNN> — <Decision Title>
+
+**Status**: Proposed | Accepted | Superseded by <ADR NNNN> | Deprecated
+**Date**: <YYYY-MM-DD>
+**Deciders**: <names or roles>
+
+---
+
+## Context
+
+What is the issue we're seeing that motivates this decision?
+
+Vấn đề / tình huống dẫn đến quyết định này.
+
+---
+
+## Decision
+
+What did we decide?
+
+Quyết định cuối cùng — 1 câu rõ ràng.
+
+---
+
+## Alternatives considered
+
+### Option A: <name>
+- ✅ Pros: ...
+- ❌ Cons: ...
+
+### Option B: <name>
+- ✅ Pros: ...
+- ❌ Cons: ...
+
+### Option C: <chosen> ← chosen
+- ✅ Pros: ...
+- ❌ Cons: ...
+
+---
+
+## Consequences
+
+### Positive
+- ...
+- ...
+
+### Negative / trade-offs
+- ...
+- ...
+
+### Neutral
+- ...
+
+---
+
+## Migration plan (nếu applicable)
+
+1. ...
+2. ...
+3. ...
+
+---
+
+## References
+
+- Related ADRs: <ADR NNNN>
+- App-map: `docs/app-map/<NN-topic>.md`
+- External: <links>
+
+---
+
+## History
+
+- **<YYYY-MM-DD>**: Proposed
+- **<YYYY-MM-DD>**: Accepted
+- **<YYYY-MM-DD>**: <if any change>

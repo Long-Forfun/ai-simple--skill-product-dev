@@ -8,7 +8,7 @@
 - Mobile: <e.g. Capacitor / React Native / N/A>
 - Hosting: <e.g. Vercel / Cloudflare / self-hosted>
 
-## Cấu trúc / Structure
+## Cấu trúc
 ```
 <PROJECT_ROOT>/
 ├── src/
@@ -16,12 +16,12 @@
 │   ├── <module-2>/    CLAUDE.md
 │   └── ...
 ├── docs/
-│   ├── app-map/       canonical specs (xem README ở trong)
+│   ├── app-map/       canonical specs (xem README bên trong)
 │   └── decisions/     ADR
 └── tests/
 ```
 
-## Quy tắc viết code / Code rules
+## Quy tắc viết code
 1. <e.g. TypeScript strict mode>
 2. <e.g. Function components only>
 3. <e.g. Mobile-first responsive>
@@ -35,14 +35,14 @@
 Types: feat, fix, refactor, style, perf, test, docs, chore
 ```
 
-## KHÔNG ĐƯỢC phép / NEVER
+## KHÔNG ĐƯỢC phép
 - Hardcode secret / API key
 - Skip error handling cho async
 - Bypass auth/RLS
 - Auto-touch prod DB / migration / cron / edge fn
 - Code mà không update doc + test (xem invariant dưới)
 
-## BẮT BUỘC phải / ALWAYS
+## BẮT BUỘC phải
 - Validate input
 - Show loading state
 - Update doc + test CÙNG commit với code

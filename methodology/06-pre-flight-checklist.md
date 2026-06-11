@@ -28,7 +28,7 @@ Mẹo phân tầng nhanh: tự hỏi *"nếu sai, undo mất bao lâu?"* — và
 **4 ranh giới hay bị chấm nhầm:**
 1. **Viết file ≠ apply**: viết migration file là GREEN (git revert được); tier chỉ tính tại thời điểm **apply lên prod**.
 2. **Index trên bảng lớn đang chạy**: `CREATE INDEX` thường sẽ write-lock bảng → outage. Postgres: dùng `CREATE INDEX CONCURRENTLY` thì YELLOW; không CONCURRENTLY trên bảng non-trivial = RED.
-3. **"Reversible" nghĩa là reversible cả DATA**: cột nullable đã nhận writes prod 1 ngày → down migration thành lossy → từ thời điểm có data, thao tác lên cột đó là RED. YELLOW chỉ đúng khi chưa có data thật.
+3. **"Reversible" nghĩa là reversible cả DATA**: cột đã nhận writes prod → down migration thành lossy → thao tác **phá hủy** lên cột đó (drop / đổi type / thu hẹp) là RED. Thao tác **additive** lên cột có data (thêm index CONCURRENTLY, widen varchar, thêm default cho row mới) vẫn YELLOW — đừng để rule này tái sinh confirm lặt vặt.
 4. **RLS trên bảng live luôn là RED** — kể cả siết chặt: "revert được bằng migration" không cứu được việc user prod bị lock out trong lúc đó.
 
 ---

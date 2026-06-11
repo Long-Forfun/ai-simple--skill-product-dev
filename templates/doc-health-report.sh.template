@@ -1,7 +1,20 @@
 #!/bin/sh
 # doc-health-report — tầng 3 của nguyên tắc 08 (MEASURE). Chạy tay hoặc cron tuần.
 # Output: text report ra stdout — pipe sang Telegram/Slack tuỳ hệ thống của bạn.
-# Usage: sh templates/doc-health-report.sh.template   (chạy tại root repo)
+#
+# Usage: sh doc-health-report.sh [budget_chars]      (chạy tại root repo; default 24000)
+#        CLAUDE_MD_CHAR_BUDGET=20000 sh doc-health-report.sh
+#
+# Wiring cron tuần — chọn 1:
+#   Windows:  schtasks /create /tn "doc-health" /sc weekly /d MON /st 08:00 ^
+#             /tr "\"C:\Program Files\Git\bin\sh.exe\" C:\path\repo\scripts\doc-health-report.sh"
+#   GitHub Actions (.github/workflows/doc-health.yml):
+#     on: { schedule: [ { cron: "0 1 * * 1" } ] }
+#     jobs: { report: { runs-on: ubuntu-latest, steps: [
+#       { uses: actions/checkout@v4, with: { fetch-depth: 0 } },
+#       { run: "sh scripts/doc-health-report.sh" } ] } }
+
+BUDGET=${1:-${CLAUDE_MD_CHAR_BUDGET:-24000}}
 
 echo "=== Doc health report — $(date +%Y-%m-%d) ==="
 
@@ -20,10 +33,10 @@ else
   echo "Drift: khong co commit sua src/ trong 20 commit gan nhat"
 fi
 
-# ── 2. App-map stale: file chưa sửa > 30 ngày ──────────────────────────
+# ── 2. App-map stale: file chưa sửa > 30 ngày (bỏ _generated — đã có check 3b) ──
 echo "--- App-map chua sua > 30 ngay ---"
 NOW=$(date +%s)
-git ls-files 'docs/app-map/*.md' 'docs/app-map/**/*.md' 2>/dev/null | while read -r f; do
+git ls-files 'docs/app-map/*.md' 'docs/app-map/**/*.md' 2>/dev/null | grep -v '_generated/' | while read -r f; do
   TS=$(git log -1 --format=%ct -- "$f" 2>/dev/null)
   [ -n "$TS" ] || continue
   AGE=$(( (NOW - TS) / 86400 ))
@@ -32,7 +45,7 @@ done
 
 # ── 3. Token budget trend ──────────────────────────────────────────────
 if [ -f CLAUDE.md ]; then
-  echo "CLAUDE.md: $(wc -c < CLAUDE.md | tr -d ' ') chars (budget 24000 ~ 6K tokens)"
+  echo "CLAUDE.md: $(wc -c < CLAUDE.md | tr -d ' ') chars (budget $BUDGET ~ 6K tokens)"
 fi
 
 # ── 3b. _generated/ cũ hơn source of truth (nguyên tắc 09) ─────────────

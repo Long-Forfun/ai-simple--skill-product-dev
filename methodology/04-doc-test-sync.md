@@ -19,12 +19,13 @@ Code change → doc update bắt buộc:
 | Code change | Doc bắt buộc update |
 |---|---|
 | Thêm/xoá file trong `src/<module>/` | `src/<module>/CLAUDE.md` (count + entry) |
-| Thêm route mới hoặc xoá route | `docs/app-map/01-pages.md` |
-| Thêm/sửa Dialog/Sheet/Drawer | `docs/app-map/02-dialogs.md` |
-| Migration (table/column/RLS) | `docs/app-map/03-database.md` + regenerate types |
+| Thêm route mới hoặc xoá route | `docs/app-map/01-pages-and-navigation.md` (+ regenerate `_generated/routes.md`) |
+| Thêm/sửa Dialog/Sheet/Drawer | `docs/app-map/02-dialogs-and-forms.md` |
+| Migration (table/column/RLS) | `docs/app-map/03-database-and-automation.md` + regenerate types + `_generated/schema.md` |
 | Edge function mới / xoá | `docs/app-map/04-edge-functions.md` |
-| Permission / role matrix change | `docs/app-map/05-permissions.md` |
+| Permission / role matrix change | `docs/app-map/05-permissions-and-gates.md` |
 | User flow mới | `docs/app-map/06-user-flows.md` |
+| Fix sự cố hệ thống chạy nền | `docs/app-map/ops/runbook-<service>.md` (mục lỗi thường gặp) |
 | Tech stack / quy ước business mới | Root `CLAUDE.md` + `docs/decisions/` (ADR) |
 | Feature mới chưa stable | `docs/app-map/20-recent-features.md` (buffer) |
 | Quyết định kiến trúc | ADR mới `docs/decisions/NNNN-*.md` |

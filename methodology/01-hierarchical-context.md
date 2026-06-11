@@ -59,6 +59,8 @@ Thứ tự cắt (giữ lại ít nhất, trỏ đi nhiều nhất):
 
 ## Ví dụ structure / Example structure
 
+> Tên file trong ví dụ là minh họa rút gọn — **index trong `docs/app-map/README.md` của project bạn mới là canonical**; mọi bảng mapping/routing phải dùng đúng tên trong index đó.
+
 ```
 my-project/
 ├── CLAUDE.md                        # ROOT — < 6K tokens

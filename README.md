@@ -95,6 +95,7 @@ ai-simple--skill-product-dev/
     ├── pre-commit.hook.template         # v2 — enforcement hook (chạy được ngay với default Supabase)
     ├── doc-health-report.sh.template    # v2 — report tuần: drift %, stale docs, broken links, lint
     ├── runbook.md.template              # v2.2 — runbook per service chạy nền
+    ├── state-registry.md.template       # v2.2 — registry canonical cho state files
     └── contract-doc.md.template         # v2 — cross-repo contract
 ```
 

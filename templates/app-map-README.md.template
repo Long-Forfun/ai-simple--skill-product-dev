@@ -16,10 +16,11 @@
 |---|---|
 | Hỏi tổng quan project | Root `CLAUDE.md` only |
 | Sửa UI component | Root + `src/<module>/CLAUDE.md` |
-| Add page mới | Root + `01-pages.md` + `src/<module>/CLAUDE.md` |
-| Đụng DB | Root + `03-database.md` + ADR liên quan |
-| Permission change | Root + `05-permissions.md` |
-| Flow change | Root + `06-flows.md` |
+| Add page mới | Root + `01-pages-and-navigation.md` + `src/<module>/CLAUDE.md` |
+| Đụng DB | Root + `03-database-and-automation.md` + ADR liên quan |
+| Permission change | Root + `05-permissions-and-gates.md` |
+| Flow change | Root + `06-user-flows.md` |
+| Sự cố hệ thống chạy nền | Root + `ops/runbook-<service>.md` TRƯỚC TIÊN |
 | Decision quá khứ | Root + `decisions/NNNN-*.md` |
 
 ---

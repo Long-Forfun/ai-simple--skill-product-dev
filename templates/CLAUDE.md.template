@@ -35,11 +35,16 @@
 Types: feat, fix, refactor, style, perf, test, docs, chore
 ```
 
+## Risk tiers (nguyên tắc 06)
+- 🟢 GREEN (reversible bằng git: code/UI/doc/test/viết file migration): đi thẳng, không hỏi
+- 🟡 YELLOW (reversible có chủ đích: bảng mới, cột nullable, index `CONCURRENTLY`): tự làm phương án an toàn + down migration, ghi `## Assumptions` cuối task, KHÔNG hỏi trước
+- 🔴 RED (không thể quay đầu / nổ ở prod: DROP, ALTER mất data, đổi RLS bảng đang phục vụ user, mutate data prod, đụng cron/edge fn ĐANG chạy): đúng 1 câu confirm gộp kèm phương án khuyến nghị, đợi trả lời
+
 ## KHÔNG ĐƯỢC phép
 - Hardcode secret / API key
 - Skip error handling cho async
 - Bypass auth/RLS
-- Auto-touch prod DB / migration / cron / edge fn
+- Hành động tier RED mà không có confirm: DROP / ALTER mất data / nới lỏng hoặc đổi RLS bảng đang phục vụ user / mutate data prod / xóa-sửa cron-edge fn đang chạy (additive + reversible → tự làm, báo trong Assumptions)
 - Code mà không update doc + test (xem invariant dưới)
 
 ## BẮT BUỘC phải

@@ -11,7 +11,9 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 - User báo "AI hallucinate / context dài / doc lệch code" → diagnose + propose
 - Retrofit AI-friendly layer vào project hiện có
 - User hỏi "làm sao Claude/Cursor hiểu project nhanh"
-- Project phình to: root CLAUDE.md vượt budget, app-map > 20 file, nhiều repo chia sẻ schema → áp dụng lớp scale (08–10)
+- Project phình to: root CLAUDE.md vượt budget, app-map > 20 file, nhiều repo chia sẻ schema → áp dụng lớp scale (08–11)
+- Project có process chạy nền (cron/agent/pipeline) hoặc "không ai biết restart bot thế nào" → ops layer (11)
+- User phàn nàn "AI hỏi confirm lặt vặt / chậm vì phải duyệt từng bước" → re-calibrate risk tier (06 v3)
 
 ## 11 nguyên tắc cốt lõi
 
@@ -33,12 +35,12 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 ## Workflow áp dụng
 
 ```
-1. Đọc methodology/README.md → grasp 10 principles
+1. Đọc methodology/README.md → grasp 11 principles
 2. Copy templates/ → project root, fill placeholders
 3. Cài pre-commit hook NGAY từ tuần đầu (retrofit muộn khó gấp 10 lần)
 4. Verify: session mới đọc CLAUDE.md có đủ ngữ cảnh để biết đọc gì tiếp?
 5. Bật Doc+Test sync từ commit ĐẦU TIÊN — đừng đợi sau
-6. Khi chạm trigger scale (root 6K tokens / app-map 20 file / multi-repo) → áp 08–10
+6. Khi chạm trigger scale (root 6K tokens / app-map 20 file / multi-repo / process chạy nền) → áp 08–11
 ```
 
 ## Tài liệu chi tiết
@@ -66,6 +68,7 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 - `templates/pre-commit.hook.template` — enforcement hook, chạy được ngay với default Supabase; cài versioned qua `.githooks/` + `core.hooksPath`; verify bằng `--self-test`
 - `templates/doc-health-report.sh.template` — report tuần: drift %, stale app-map, broken cross-ref, token budget, lint Load-khi/last-updated, _generated staleness
 - `templates/runbook.md.template` — runbook per service chạy nền (5 mục tối thiểu)
+- `templates/state-registry.md.template` — registry canonical cho state files (1 writer/state, atomic write)
 - `templates/contract-doc.md.template` — cross-repo contract
 
 ## Anti-patterns

@@ -19,11 +19,17 @@ Giải pháp: phân tầng theo **khả năng đảo ngược**, không phải t
 
 | Tầng | Tiêu chí | Hành vi AI |
 |---|---|---|
-| 🟢 **GREEN** | Đảo ngược bằng git: code, UI, doc, test, file mới, read-only query | **Đi thẳng**, không hỏi, không cần liệt kê |
-| 🟡 **YELLOW** | Đảo ngược có chủ đích: bảng mới, cột nullable mới, index, RLS **siết chặt thêm**, role mới chưa gắn user, 2-3 module, cron/job mới chưa bật | **Tự làm theo phương án an toàn nhất** + bắt buộc reversible (down migration / feature flag) + ghi vào mục **Assumptions** của báo cáo cuối. KHÔNG hỏi trước |
-| 🔴 **RED** | Không thể quay đầu hoặc nổ ở prod: DROP/ALTER mất data, RLS **nới lỏng**, đổi role matrix đang dùng, mutate data prod, xóa/sửa cron-edge fn **đang chạy**, breaking change schema liên repo (nguyên tắc 10) | **Dừng, hỏi đúng 1 câu gộp** kèm phương án đề xuất, đợi trả lời |
+| 🟢 **GREEN** | Đảo ngược bằng git: code, UI, doc, test, file mới, read-only query, **viết file migration** (chưa apply) | **Đi thẳng**, không hỏi, không cần liệt kê |
+| 🟡 **YELLOW** | Đảo ngược có chủ đích: bảng mới, cột nullable mới **chưa có data**, index (`CONCURRENTLY` — xem note), RLS siết thêm trên bảng **chưa phục vụ production**, role mới chưa gắn user, 2-3 module, cron/job mới chưa bật | **Tự làm theo phương án an toàn nhất** + bắt buộc reversible (down migration / feature flag) + ghi vào mục **Assumptions** của báo cáo cuối. KHÔNG hỏi trước |
+| 🔴 **RED** | Không thể quay đầu hoặc nổ ở prod: DROP/ALTER mất data, **mọi thay đổi RLS trên bảng đang phục vụ user** (nới lỏng = lộ data, siết = lock out user — đều nổ), đổi role matrix đang dùng, mutate data prod, xóa/sửa cron-edge fn **đang chạy**, breaking change schema liên repo (nguyên tắc 10) | **Dừng, hỏi đúng 1 câu gộp** kèm phương án đề xuất, đợi trả lời |
 
 Mẹo phân tầng nhanh: tự hỏi *"nếu sai, undo mất bao lâu?"* — vài giây (git revert) = GREEN; một lệnh có chuẩn bị sẵn (down migration) = YELLOW; phải restore backup hoặc không undo được = RED.
+
+**4 ranh giới hay bị chấm nhầm:**
+1. **Viết file ≠ apply**: viết migration file là GREEN (git revert được); tier chỉ tính tại thời điểm **apply lên prod**.
+2. **Index trên bảng lớn đang chạy**: `CREATE INDEX` thường sẽ write-lock bảng → outage. Postgres: dùng `CREATE INDEX CONCURRENTLY` thì YELLOW; không CONCURRENTLY trên bảng non-trivial = RED.
+3. **"Reversible" nghĩa là reversible cả DATA**: cột nullable đã nhận writes prod 1 ngày → down migration thành lossy → từ thời điểm có data, thao tác lên cột đó là RED. YELLOW chỉ đúng khi chưa có data thật.
+4. **RLS trên bảng live luôn là RED** — kể cả siết chặt: "revert được bằng migration" không cứu được việc user prod bị lock out trong lúc đó.
 
 ---
 

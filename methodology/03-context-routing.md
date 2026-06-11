@@ -60,7 +60,7 @@ Chi phí routing: 1 lần spawn sub-agent ≈ 1-2K tokens (model rẻ). **Skip `
 ## Quy tắc cứng / Hard rules
 
 1. Sub-agent **CHỈ ROUTE** — không đọc source code, không edit
-2. Output luôn có 4 phần: domain classify, file list (ordered), risk tier, confirm (chỉ khi RED)
+2. Output luôn có 4 phần: domain classify, file list (ordered), risk tier, "KHÔNG đụng tới" — cộng phần thứ 5 (câu confirm gộp) CHỈ khi tier RED
 3. Slash command name nên ngắn (3-4 ký tự) — `/fl`, `/ctx`, `/r` — vì user sẽ gõ nhiều
 4. Tên sub-agent cố định — đừng đổi sau (broken bookmarks)
 5. Sub-agent có model rẻ (haiku/sonnet) thay vì opus — task này không cần thinking

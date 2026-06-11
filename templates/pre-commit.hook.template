@@ -18,13 +18,27 @@
 MIGRATIONS_PATTERN='supabase/migrations/.*\.sql$'         # prisma/migrations/.* | db/migrate/.* ...
 DB_DOC_PATTERN='docs/.*(database|db|schema).*\.md$'       # doc nào được tính là "doc database"
 CLAUDE_MD_CHAR_BUDGET=24000                               # ~6K tokens (EN ~4 chars/token; VN-heavy có thể hạ 20000)
+# Sample paths cho --self-test — đổi CÙNG LÚC với 2 pattern trên:
+SELF_TEST_MIGRATION_SAMPLE='supabase/migrations/0001_sample.sql'
+SELF_TEST_DOC_SAMPLE='docs/app-map/03-database-and-automation.md'
 
 if [ "$1" = "--self-test" ]; then
   echo "ok: hook parse duoc."
-  echo "  MIGRATIONS_PATTERN = $MIGRATIONS_PATTERN"
-  echo "  DB_DOC_PATTERN     = $DB_DOC_PATTERN"
-  echo "  BUDGET             = $CLAUDE_MD_CHAR_BUDGET chars"
-  exit 0
+  RC=0
+  if echo "$SELF_TEST_MIGRATION_SAMPLE" | grep -qE "$MIGRATIONS_PATTERN" 2>/dev/null; then
+    echo "PASS: MIGRATIONS_PATTERN khop '$SELF_TEST_MIGRATION_SAMPLE'"
+  else
+    echo "FAIL: MIGRATIONS_PATTERN KHONG khop sample (pattern sai hoac ERE invalid) -> check 1 se silent no-op!"
+    RC=1
+  fi
+  if echo "$SELF_TEST_DOC_SAMPLE" | grep -qiE "$DB_DOC_PATTERN" 2>/dev/null; then
+    echo "PASS: DB_DOC_PATTERN khop '$SELF_TEST_DOC_SAMPLE'"
+  else
+    echo "FAIL: DB_DOC_PATTERN KHONG khop sample -> moi migration commit se bi block oan!"
+    RC=1
+  fi
+  echo "  BUDGET = $CLAUDE_MD_CHAR_BUDGET chars"
+  exit $RC
 fi
 
 CHANGED=$(git diff --cached --name-only)
@@ -42,12 +56,16 @@ fi
 # ── 2. Root CLAUDE.md token budget ─────────────────────────────────────
 # Ratchet: chỉ check khi CLAUDE.md nằm trong commit — vi phạm tồn đọng được "ân hạn"
 # tới lần sửa kế tiếp (tránh hook fail mọi commit khi retrofit vào repo cũ).
+# Đo BLOB ĐÃ STAGE (git show :CLAUDE.md), không đo working tree — tránh block/pass oan
+# khi worktree khác staged. Guard cat-file: file đang bị staged-delete thì bỏ qua.
 if echo "$CHANGED" | grep -qx 'CLAUDE.md'; then
-  SIZE=$(wc -c < CLAUDE.md | tr -d ' ')
-  if [ "$SIZE" -gt "$CLAUDE_MD_CHAR_BUDGET" ]; then
-    echo "BLOCK: CLAUDE.md ${SIZE} chars > budget ${CLAUDE_MD_CHAR_BUDGET} (~6K tokens)."
-    echo "  -> Tach bang/chi tiet ra docs/app-map/, root chi giu rule + pointer (nguyen tac 01 \"root diet\")."
-    FAIL=1
+  if git cat-file -e :CLAUDE.md 2>/dev/null; then
+    SIZE=$(git show :CLAUDE.md | wc -c | tr -d ' ')
+    if [ "$SIZE" -gt "$CLAUDE_MD_CHAR_BUDGET" ]; then
+      echo "BLOCK: CLAUDE.md (staged) ${SIZE} chars > budget ${CLAUDE_MD_CHAR_BUDGET} (~6K tokens)."
+      echo "  -> Tach bang/chi tiet ra docs/app-map/, root chi giu rule + pointer (nguyen tac 01 \"root diet\")."
+      FAIL=1
+    fi
   fi
 fi
 

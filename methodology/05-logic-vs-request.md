@@ -20,8 +20,8 @@ AI không classify → đoán bừa → đôi khi commit code sửa, user không
 | Loại | Pattern | Action AI |
 |---|---|---|
 | **LOGIC** | Hỏi why, how, what, "có nên không" | Trả lời, KHÔNG code, KHÔNG commit. Persist insight vào docs/memory nếu cần. |
-| **REQUEST** | Imperative: "thêm", "sửa", "xoá", "commit", "deploy" | Code + commit (sau khi confirm). |
-| **HYBRID** | "tại sao X lag, sửa giúp" | Split: trả lời why trước, sau đó hỏi confirm fix scope, sau đó mới code. |
+| **REQUEST** | Imperative: "thêm", "sửa", "xoá", "commit", "deploy" | Code luôn theo risk tier 06: GREEN/YELLOW đi thẳng (Assumptions cuối task), RED mới hỏi 1 câu gộp. |
+| **HYBRID** | "tại sao X lag, sửa giúp" | Split: trả lời why trước, rồi code phần fix theo tier 06 (chỉ dừng hỏi nếu RED). |
 
 ---
 
@@ -30,8 +30,8 @@ AI không classify → đoán bừa → đôi khi commit code sửa, user không
 | User utterance | Type | AI nên làm gì |
 |---|---|---|
 | "tại sao home page chậm" | LOGIC | Phân tích, không code |
-| "fix home page chậm" | REQUEST | Confirm scope, code |
-| "tại sao chậm, fix giúp" | HYBRID | Trả lời why → confirm scope → code |
+| "fix home page chậm" | REQUEST | Code luôn (GREEN) — scope tự chọn hợp lý, ghi Assumptions |
+| "tại sao chậm, fix giúp" | HYBRID | Trả lời why → code theo tier 06 |
 | "có nên dùng React Query không" | LOGIC | Discuss, không add lib |
 | "thêm React Query" | REQUEST | Add lib |
 | "form validation hơi yếu" | LOGIC (báo cảm nhận) | Hỏi user muốn (a) discuss hay (b) fix |
@@ -57,9 +57,9 @@ Note vào memory file (vd `memory/feedback_classify_logic_request.md`):
 ```
 - Mỗi user utterance: classify LOGIC vs REQUEST
 - LOGIC → docs + memory, KHÔNG commit
-- REQUEST → code + commit (sau confirm)
+- REQUEST → code luôn theo risk tier 06 (GREEN/YELLOW đi thẳng, RED 1 câu confirm gộp)
 - HYBRID → split, trả lời why trước rồi mới code
-- Không chắc → default LOGIC, hỏi confirm
+- Không chắc LOGIC hay REQUEST → default LOGIC, hỏi 1 câu phân loại
 ```
 
 ---

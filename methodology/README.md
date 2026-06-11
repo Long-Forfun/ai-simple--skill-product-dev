@@ -48,7 +48,7 @@
 5. Khi user feedback lặp lại: persist vào memory (nguyên tắc 07)
 
 ### Project cũ (retrofit)
-1. Đọc 10 nguyên tắc, score project hiện tại từng cái
+1. Đọc 11 nguyên tắc, score project hiện tại từng cái
 2. Pick 2 cái yếu nhất → retrofit trước (thường 02 + 04)
 3. Đừng cố retrofit hết 1 lần — chia 5 PR, mỗi PR 1 nguyên tắc
 

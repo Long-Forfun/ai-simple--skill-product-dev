@@ -27,7 +27,7 @@ docs/app-map/ops/
 └── runbook-<service>.md     # 1 runbook / process chạy nền (template sẵn)
 ```
 
-**2. Runbook per service** — dùng `templates/runbook.md.template`, tối thiểu 5 mục:
+**2. Runbook per service** — dùng `templates/runbook.md.template`; state registry — dùng `templates/state-registry.md.template`. Runbook tối thiểu 5 mục:
 start/stop/restart · health check (lệnh + output mong đợi) · log ở đâu · 3-5 lỗi thường gặp kèm cách xử · escalation (khi nào bó tay, gọi ai/làm gì).
 
 **3. Routing row cho sự cố** — root CLAUDE.md và `/fl` router phải có dòng:

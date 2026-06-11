@@ -1,0 +1,28 @@
+# State Registry — {{PROJECT_NAME}}
+
+> Load khi: cần đọc/ghi/sửa bất kỳ state file hoặc bảng trạng thái nào; hoặc đang debug sự cố liên quan trạng thái.
+> Đây là registry CANONICAL (nguyên tắc 11 §3): state không có trong bảng này = coi như không tồn tại — KHÔNG đoán schema.
+
+**Last updated**: {{YYYY-MM-DD}}
+
+---
+
+## State files
+
+| File | Ai ghi (writer duy nhất) | Ai đọc | Schema tóm tắt | Reset thế nào |
+|---|---|---|---|---|
+| {{state/published.json}} | {{state_manager.py — KHÔNG ghi tay}} | {{feedback_agent, dashboard}} | {{`{publishes: {<plan_id>: {...}}}` — chi tiết: link contract/doc}} | {{KHÔNG BAO GIỜ xóa để "reset" — restore từ backups/}} |
+| {{state/metrics.json}} | {{...}} | {{...}} | {{...}} | {{...}} |
+
+## Bảng trạng thái trong DB (nếu có)
+
+| Bảng | Ai ghi | Vòng đời row | Lưu ý |
+|---|---|---|---|
+| {{job_queue}} | {{worker X}} | {{pending → done, xóa sau 30d}} | {{...}} |
+
+## Quy tắc chung
+
+1. **1 writer / 1 state** — mọi ghi đi qua module writer khai báo ở trên, không raw-write
+2. **Atomic write** — ghi tạm + rename, hoặc qua state manager có sẵn; không ghi trực tiếp giữa chừng
+3. **Backup trước thao tác bất thường** — copy file state trước khi sửa tay (nếu buộc phải)
+4. **Thêm state mới = thêm dòng registry CÙNG commit** (Doc+Test sync, nguyên tắc 04)

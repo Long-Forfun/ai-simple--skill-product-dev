@@ -7,8 +7,8 @@
 
 ## Vấn đề / The problem
 
-App-map viết tay hoạt động tốt khi project nhỏ. Khi phình to:
-- DB lên 40+ migrations → bảng schema trong doc viết tay lệch sau mỗi migration
+App-map viết tay hoạt động tốt khi project nhỏ. Khi phình to (trigger: DB > 15 migrations / app > 50 routes — xem bảng scale-up ở methodology README):
+- DB lên hàng chục migrations → bảng schema trong doc viết tay lệch sau mỗi migration
 - App lên 100+ routes → danh sách page trong `01-pages.md` thiếu dần
 - Content lên hàng nghìn item (bài học, đề thi, bài viết) → con số thống kê trong doc sai ngay tuần sau
 

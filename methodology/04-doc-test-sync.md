@@ -39,7 +39,7 @@ Code change → test bắt buộc:
 | Util function | Unit test |
 | Component có user interaction | Component test (RTL/Vitest) |
 | Page mới / flow mới | E2E test (Playwright/Cypress) |
-| Bug fix | Regression test (`bug-fix-verify-YYYY-MM-DD.spec.ts`) |
+| Bug fix | Regression test (`bug-fix-<slug>-YYYY-MM-DD.spec.ts` — slug để 2 bug cùng ngày không đè tên) |
 | Permission / RLS change | E2E với role matrix |
 | Migration | DB integration test + manual verify |
 
@@ -73,7 +73,9 @@ Phải note rõ trong commit message: `style(ui): đổi padding card — skip t
 
 ## Cách enforce / How to enforce
 
-1. **Pre-commit hook** (husky): grep diff, nếu có file `src/` mà không có file `docs/` thay đổi → warn (không block, vì đôi khi đúng là pure UI tweak)
+> **v2 — 2026-06-11**: enforcement chi tiết chuyển sang [08-automated-enforcement.md](08-automated-enforcement.md). Tóm tắt phân tầng:
+
+1. **Pre-commit hook** (`templates/pre-commit.hook.template`): **BLOCK** cho invariant cốt tử (migration đổi mà doc database không đổi — hoặc không regenerate `_generated/schema.md`, xem nguyên tắc 09); **WARN** cho `src/` đổi mà `docs/` không đổi (không block, vì đôi khi đúng là pure UI tweak)
 2. **Pull request template**: checklist 6 ô trên, force tick
 3. **AI agent rule**: rule trong `CLAUDE.md` — "Trước khi say done, verify checklist 6 ô"
 4. **Code reviewer**: reject PR thiếu doc/test, không exception

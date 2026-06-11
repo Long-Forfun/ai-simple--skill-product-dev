@@ -56,11 +56,11 @@ Types: feat, fix, refactor, style, perf, test, docs, chore
 | Code change | Doc bắt buộc update |
 |---|---|
 | Thêm/xoá file `src/<module>/` | `src/<module>/CLAUDE.md` |
-| Route mới | `docs/app-map/01-pages.md` |
-| Dialog/Form | `docs/app-map/02-dialogs.md` |
-| Migration | `docs/app-map/03-database.md` |
+| Route mới | `docs/app-map/01-pages-and-navigation.md` (+ regenerate `_generated/routes.md` nếu có) |
+| Dialog/Form | `docs/app-map/02-dialogs-and-forms.md` |
+| Migration | `docs/app-map/03-database-and-automation.md` (+ regenerate `_generated/schema.md` nếu có) |
 | Edge function | `docs/app-map/04-edge-functions.md` |
-| Permission/role | `docs/app-map/05-permissions.md` |
+| Permission/role | `docs/app-map/05-permissions-and-gates.md` |
 | Flow mới | `docs/app-map/06-user-flows.md` |
 | Quyết định kiến trúc | ADR `docs/decisions/NNNN-*.md` |
 
@@ -69,7 +69,7 @@ Types: feat, fix, refactor, style, perf, test, docs, chore
 | Hook/util | Unit test |
 | Component có interaction | Component test |
 | Page/flow mới | E2E test |
-| Bug fix | Regression test `bug-fix-verify-YYYY-MM-DD.spec.*` |
+| Bug fix | Regression test `bug-fix-<slug>-YYYY-MM-DD.spec.*` |
 | Permission/RLS | E2E với role matrix |
 
 → Skip test chỉ cho phép cho: pure UI tweak (color/spacing/copy), config-only, doc-only. Note rõ trong commit message.
@@ -116,8 +116,11 @@ npm run test:e2e
 ---
 
 ## Memory (cross-session preferences)
-- [<feedback_X>](memory/feedback_X.md) — <one-line>
-- [<project_Y>](memory/project_Y.md) — <one-line>
+<!-- Memory sống ở thư mục memory của Claude Code (~/.claude/projects/<project-id>/memory/),
+     KHÔNG nằm trong repo — xem nguyên tắc 07. Mục này chỉ liệt kê quy ước đáng nhớ
+     mà mọi AI session phải tôn trọng, không link file. -->
+- <preference_1: vd "Telegram message luôn tiếng Việt">
+- <preference_2: vd "không bao giờ touch bảng X trực tiếp">
 
 ---
 

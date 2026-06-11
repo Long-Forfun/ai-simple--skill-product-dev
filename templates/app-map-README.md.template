@@ -1,5 +1,6 @@
 # App Map — <PROJECT_NAME>
 
+> Load khi: cần quyết định đọc app-map file nào cho task hiện tại (đây là index/router).
 > **Single source of truth** cho mọi domain của <PROJECT_NAME>. Mỗi file 1 chủ đề canonical, đánh số tăng dần.
 
 ---

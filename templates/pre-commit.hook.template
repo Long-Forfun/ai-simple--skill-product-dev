@@ -1,59 +1,75 @@
 #!/bin/sh
 # pre-commit — Automated enforcement (nguyên tắc 08 / principle 08)
 #
-# Cài đặt / Install:
-#   cp templates/pre-commit.hook.template .git/hooks/pre-commit
-#   chmod +x .git/hooks/pre-commit        (mac/linux; Windows Git Bash tự chạy được)
+# CHẠY ĐƯỢC NGAY với default Supabase + Next.js. Sửa 3 biến CẤU HÌNH bên dưới cho project khác.
+# (Works out of the box for Supabase defaults. Edit the 3 CONFIG vars for other stacks.)
 #
-# Sửa các pattern {{...}} cho đúng project của bạn trước khi dùng.
-# Edit the {{...}} patterns to match your project before use.
+# Cài đặt KHUYẾN NGHỊ — versioned, mọi máy/agent đều bị enforce (xem 08 §hard-rules):
+#   mkdir -p .githooks
+#   cp templates/pre-commit.hook.template .githooks/pre-commit
+#   git config core.hooksPath .githooks
+#   git add .githooks   (commit cùng repo — máy clone mới chỉ cần chạy lại dòng git config)
+#
+# Cách cũ (1 máy — KHÔNG khuyến nghị, drift quay lại): cp vào .git/hooks/pre-commit
+#
+# Sau khi sửa config, verify: sh .githooks/pre-commit --self-test
 
-set -e
+# ── CẤU HÌNH / CONFIG — sửa theo project ──────────────────────────────
+MIGRATIONS_PATTERN='supabase/migrations/.*\.sql$'         # prisma/migrations/.* | db/migrate/.* ...
+DB_DOC_PATTERN='docs/.*(database|db|schema).*\.md$'       # doc nào được tính là "doc database"
+CLAUDE_MD_CHAR_BUDGET=24000                               # ~6K tokens (EN ~4 chars/token; VN-heavy có thể hạ 20000)
+
+if [ "$1" = "--self-test" ]; then
+  echo "ok: hook parse duoc."
+  echo "  MIGRATIONS_PATTERN = $MIGRATIONS_PATTERN"
+  echo "  DB_DOC_PATTERN     = $DB_DOC_PATTERN"
+  echo "  BUDGET             = $CLAUDE_MD_CHAR_BUDGET chars"
+  exit 0
+fi
+
 CHANGED=$(git diff --cached --name-only)
 FAIL=0
 
 # ── 1. Migration đổi → doc database phải đổi cùng commit ──────────────
-# Sửa pattern cho đúng project: supabase/migrations | prisma/migrations | db/migrate ...
-if echo "$CHANGED" | grep -qE '{{MIGRATIONS_PATH|supabase/migrations}}/.*\.sql$'; then
-  if ! echo "$CHANGED" | grep -qiE 'docs/.*(database|db|schema).*\.md$'; then
-    echo "❌ BLOCK: migration thay đổi nhưng doc database không update."
-    echo "   → Update docs/app-map/*database*.md (hoặc regenerate _generated/schema.md) rồi commit lại."
+if echo "$CHANGED" | grep -qE "$MIGRATIONS_PATTERN"; then
+  if ! echo "$CHANGED" | grep -qiE "$DB_DOC_PATTERN"; then
+    echo "BLOCK: migration thay doi nhung doc database khong update."
+    echo "  -> Update docs/app-map/*database*.md (hoac regenerate _generated/schema.md) roi commit lai."
     FAIL=1
   fi
 fi
 
 # ── 2. Root CLAUDE.md token budget ─────────────────────────────────────
-# ~6000 tokens ≈ 24000 chars (EN ~4 chars/token; VN ~3 chars/token → có thể hạ xuống 20000)
-BUDGET={{CLAUDE_MD_CHAR_BUDGET|24000}}
+# Ratchet: chỉ check khi CLAUDE.md nằm trong commit — vi phạm tồn đọng được "ân hạn"
+# tới lần sửa kế tiếp (tránh hook fail mọi commit khi retrofit vào repo cũ).
 if echo "$CHANGED" | grep -qx 'CLAUDE.md'; then
   SIZE=$(wc -c < CLAUDE.md | tr -d ' ')
-  if [ "$SIZE" -gt "$BUDGET" ]; then
-    echo "❌ BLOCK: CLAUDE.md ${SIZE} chars > budget ${BUDGET} (~6K tokens)."
-    echo "   → Tách bảng/chi tiết ra docs/app-map/, root chỉ giữ rule + pointer (nguyên tắc 01)."
+  if [ "$SIZE" -gt "$CLAUDE_MD_CHAR_BUDGET" ]; then
+    echo "BLOCK: CLAUDE.md ${SIZE} chars > budget ${CLAUDE_MD_CHAR_BUDGET} (~6K tokens)."
+    echo "  -> Tach bang/chi tiet ra docs/app-map/, root chi giu rule + pointer (nguyen tac 01 \"root diet\")."
     FAIL=1
   fi
 fi
 
-# ── 3. Schema dùng chung đổi → contract phải đổi cùng commit ───────────
-# Khai báo từng cặp schema→contract (nguyên tắc 10). Thêm dòng cho mỗi schema chung.
+# ── 3. Schema dùng chung đổi → contract phải đổi cùng commit (nguyên tắc 10) ──
+# Khai báo từng cặp schema→contract. Bỏ comment + sửa pattern cho mỗi schema chung.
 check_contract() {
-  SCHEMA_PATTERN="$1"; CONTRACT_PATTERN="$2"
-  if echo "$CHANGED" | grep -qE "$SCHEMA_PATTERN"; then
-    if ! echo "$CHANGED" | grep -qE "$CONTRACT_PATTERN"; then
-      echo "❌ BLOCK: schema dùng chung ($SCHEMA_PATTERN) đổi nhưng contract không update."
-      echo "   → Update $CONTRACT_PATTERN (bump version nếu breaking) rồi commit lại."
+  if echo "$CHANGED" | grep -qE "$1"; then
+    if ! echo "$CHANGED" | grep -qE "$2"; then
+      echo "BLOCK: schema dung chung ($1) doi nhung contract ($2) khong update."
+      echo "  -> Update contract (bump version neu breaking) roi commit lai."
       FAIL=1
     fi
   fi
 }
 # Ví dụ / example:
-# check_contract 'outputs/.*plan.*\.json|modules/plan_writer\.py' 'docs/contracts/plan-json\.contract\.md'
+# check_contract 'modules/plan_writer\.py' 'docs/contracts/plan-json\.contract\.md'
 
-# ── 4. WARN (không chặn): app-map file mới thiếu chuẩn ────────────────
+# ── 4. WARN (không chặn): app-map file thiếu chuẩn ────────────────────
 for f in $(echo "$CHANGED" | grep -E 'docs/app-map/.*\.md$' | grep -v '_generated/' || true); do
   [ -f "$f" ] || continue
   if ! head -5 "$f" | grep -qiE 'load (khi|when)'; then
-    echo "⚠️  WARN: $f thiếu dòng 'Load khi/Load when' ở đầu file (nguyên tắc 02)."
+    echo "WARN: $f thieu dong 'Load khi/Load when' o dau file (nguyen tac 02)."
   fi
 done
 

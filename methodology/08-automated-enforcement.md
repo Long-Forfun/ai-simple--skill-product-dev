@@ -80,8 +80,9 @@ Nguyên tắc gốc định nghĩa 4 metric (onboard time, drift %, hallucinatio
 
 ## Checklist áp dụng / Adoption checklist
 
-- [ ] `templates/pre-commit.hook.template` đã copy vào `.git/hooks/pre-commit` (hoặc qua husky/pre-commit framework)
-- [ ] Pattern migration→doc đã sửa đúng cho project
-- [ ] Token budget threshold đã set (mặc định 24.000 chars)
-- [ ] Có script/report stale-doc chạy định kỳ, output đến kênh có người đọc
+- [ ] Hook cài **versioned**: `.githooks/pre-commit` (commit vào repo) + `git config core.hooksPath .githooks` trên mỗi máy clone — KHÔNG copy vào `.git/hooks/` (chỉ 1 máy được enforce → drift quay lại, vi phạm chính rule 08)
+- [ ] `sh .githooks/pre-commit --self-test` chạy OK sau khi sửa 3 biến CONFIG
+- [ ] Pattern migration→doc đã sửa đúng cho project (default: Supabase)
+- [ ] Token budget threshold đã set (mặc định 24.000 chars; lưu ý ratchet: chỉ check khi CLAUDE.md có trong commit — vi phạm tồn đọng được ân hạn tới lần sửa kế)
+- [ ] `templates/doc-health-report.sh.template` chạy định kỳ (cron tuần), output đến kênh có người đọc (Telegram/Slack)
 - [ ] Quy ước nhóm: `--no-verify` chỉ dùng khi hotfix, phải trả nợ doc trong 24h

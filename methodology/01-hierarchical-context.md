@@ -110,7 +110,7 @@ my-project/
 
 ## Checklist áp dụng / Adoption checklist
 
-- [ ] Root CLAUDE.md < 6000 tokens (đếm bằng tiktoken hoặc estimate ~750 từ)
+- [ ] Root CLAUDE.md < 6000 tokens (proxy nhanh: ~24.000 ký tự EN / ~20.000 ký tự tiếng Việt — hook tự đếm, xem nguyên tắc 08)
 - [ ] Mỗi module > 5 file có CLAUDE.md
 - [ ] Folder `docs/app-map/` tồn tại + README index
 - [ ] Mọi pointer đều là relative path

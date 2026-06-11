@@ -53,7 +53,7 @@ And since **v2** (for when the project grows — pain point #4: *honor-system me
 2. Tạo thư mục `docs/app-map/` + copy `templates/app-map-README.md.template` vào
 3. Tạo `.claude/commands/fl.md` từ `templates/fl.command.md.template`
 4. Tạo `.claude/agents/context-router.md` từ `templates/context-router.agent.md.template`
-5. Copy `templates/pre-commit.hook.template` → `.git/hooks/pre-commit` (sửa pattern cho đúng project)
+5. Cài hook versioned: `mkdir .githooks` → copy `templates/pre-commit.hook.template` vào `.githooks/pre-commit` → `git config core.hooksPath .githooks` → commit folder `.githooks` (sửa 3 biến CONFIG nếu không phải Supabase; verify: `sh .githooks/pre-commit --self-test`)
 6. Đọc `methodology/README.md` để hiểu 10 nguyên tắc
 
 ### EN
@@ -61,7 +61,7 @@ And since **v2** (for when the project grows — pain point #4: *honor-system me
 2. Create `docs/app-map/` directory, copy `templates/app-map-README.md.template` into it
 3. Create `.claude/commands/fl.md` from `templates/fl.command.md.template`
 4. Create `.claude/agents/context-router.md` from `templates/context-router.agent.md.template`
-5. Copy `templates/pre-commit.hook.template` → `.git/hooks/pre-commit` (edit patterns for your project)
+5. Install the versioned hook: `mkdir .githooks` → copy `templates/pre-commit.hook.template` to `.githooks/pre-commit` → `git config core.hooksPath .githooks` → commit `.githooks` (edit the 3 CONFIG vars if not Supabase; verify: `sh .githooks/pre-commit --self-test`)
 6. Read `methodology/README.md` to grasp the 10 principles
 
 ---
@@ -91,7 +91,8 @@ ai-simple--skill-product-dev/
     ├── ADR.md.template
     ├── context-router.agent.md.template
     ├── fl.command.md.template
-    ├── pre-commit.hook.template         # v2 — enforcement hook
+    ├── pre-commit.hook.template         # v2 — enforcement hook (chạy được ngay với default Supabase)
+    ├── doc-health-report.sh.template    # v2 — report tuần: drift %, stale docs, broken links
     └── contract-doc.md.template         # v2 — cross-repo contract
 ```
 

@@ -61,7 +61,8 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 - `templates/ADR.md.template` — architecture decision record
 - `templates/context-router.agent.md.template` — sub-agent definition
 - `templates/fl.command.md.template` — slash command
-- `templates/pre-commit.hook.template` — enforcement hook (sửa pattern theo project)
+- `templates/pre-commit.hook.template` — enforcement hook, chạy được ngay với default Supabase; cài versioned qua `.githooks/` + `core.hooksPath`; verify bằng `--self-test`
+- `templates/doc-health-report.sh.template` — report tuần: drift %, stale app-map, broken cross-ref, token budget
 - `templates/contract-doc.md.template` — cross-repo contract
 
 ## Anti-patterns

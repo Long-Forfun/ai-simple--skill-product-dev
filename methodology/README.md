@@ -30,7 +30,7 @@
 - ❌ Không loại bỏ hoàn toàn hallucination (chỉ giảm ~80%)
 
 **CÓ** làm:
-- ✅ Giảm cold-start cost session mới (5K → < 1K tokens onboard)
+- ✅ Giảm cold-start cost session mới — onboard chỉ tốn root CLAUDE.md (≤ 6K tokens) + đúng các file được route, thay vì AI tự explore toàn codebase (thường 3–10x tốn hơn)
 - ✅ Force tài liệu update đồng bộ với code (invariant cứng — và từ v2: **hook enforce, không tự giác**)
 - ✅ Tách câu chuyện (LOGIC) với hành động (REQUEST) → giảm commit nhầm
 - ✅ **v2**: Sống sót khi project phình to — docs máy sinh, app-map phân cấp, contract liên repo

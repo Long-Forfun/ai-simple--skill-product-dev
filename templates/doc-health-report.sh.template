@@ -1,0 +1,47 @@
+#!/bin/sh
+# doc-health-report — tầng 3 của nguyên tắc 08 (MEASURE). Chạy tay hoặc cron tuần.
+# Output: text report ra stdout — pipe sang Telegram/Slack tuỳ hệ thống của bạn.
+# Usage: sh templates/doc-health-report.sh.template   (chạy tại root repo)
+
+echo "=== Doc health report — $(date +%Y-%m-%d) ==="
+
+# ── 1. Drift %: trong 20 commit gần nhất, % commit sửa src/ có kèm docs/ ──
+TOTAL=0; WITHDOC=0
+for c in $(git log -20 --format=%H); do
+  FILES=$(git show --name-only --format= "$c")
+  if echo "$FILES" | grep -q '^src/'; then
+    TOTAL=$((TOTAL+1))
+    if echo "$FILES" | grep -q '^docs/'; then WITHDOC=$((WITHDOC+1)); fi
+  fi
+done
+if [ "$TOTAL" -gt 0 ]; then
+  echo "Drift: $WITHDOC/$TOTAL commit sua src/ co kem docs/ (muc tieu >= 95%)"
+else
+  echo "Drift: khong co commit sua src/ trong 20 commit gan nhat"
+fi
+
+# ── 2. App-map stale: file chưa sửa > 30 ngày ──────────────────────────
+echo "--- App-map chua sua > 30 ngay ---"
+NOW=$(date +%s)
+git ls-files 'docs/app-map/*.md' 'docs/app-map/**/*.md' 2>/dev/null | while read -r f; do
+  TS=$(git log -1 --format=%ct -- "$f" 2>/dev/null)
+  [ -n "$TS" ] || continue
+  AGE=$(( (NOW - TS) / 86400 ))
+  [ "$AGE" -gt 30 ] && echo "  $f — ${AGE}d"
+done
+
+# ── 3. Token budget trend ──────────────────────────────────────────────
+if [ -f CLAUDE.md ]; then
+  echo "CLAUDE.md: $(wc -c < CLAUDE.md | tr -d ' ') chars (budget 24000 ~ 6K tokens)"
+fi
+
+# ── 4. Broken cross-ref trong app-map (link relative tới file không tồn tại) ──
+echo "--- Broken cross-ref ---"
+git ls-files 'docs/app-map/*.md' 2>/dev/null | while read -r f; do
+  DIR=$(dirname "$f")
+  grep -oE '\]\(([^)#]+\.md)' "$f" | sed 's/](//' | while read -r link; do
+    case "$link" in http*|/*) continue ;; esac
+    [ -f "$DIR/$link" ] || echo "  $f -> $link (khong ton tai)"
+  done
+done
+echo "=== Het report ==="

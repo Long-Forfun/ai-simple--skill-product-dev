@@ -35,6 +35,22 @@ if [ -f CLAUDE.md ]; then
   echo "CLAUDE.md: $(wc -c < CLAUDE.md | tr -d ' ') chars (budget 24000 ~ 6K tokens)"
 fi
 
+# ── 3b. _generated/ cũ hơn source of truth (nguyên tắc 09) ─────────────
+if [ -d docs/app-map/_generated ] && [ -d supabase/migrations ]; then
+  GEN_TS=$(git log -1 --format=%ct -- docs/app-map/_generated/ 2>/dev/null)
+  MIG_TS=$(git log -1 --format=%ct -- supabase/migrations/ 2>/dev/null)
+  if [ -n "$GEN_TS" ] && [ -n "$MIG_TS" ] && [ "$MIG_TS" -gt "$GEN_TS" ]; then
+    echo "STALE: migrations moi hon _generated/ -> chay lai generator (schema doc dang cu)"
+  fi
+fi
+
+# ── 3c. Lint app-map: thiếu "Load khi" / thiếu last-updated ────────────
+echo "--- App-map lint ---"
+git ls-files 'docs/app-map/*.md' 2>/dev/null | grep -v '_generated/' | while read -r f; do
+  head -5 "$f" | grep -qiE 'load (khi|when)' || echo "  $f: thieu 'Load khi'"
+  tail -5 "$f" | grep -qiE 'last.updated|cap nhat' || echo "  $f: thieu last-updated"
+done
+
 # ── 4. Broken cross-ref trong app-map (link relative tới file không tồn tại) ──
 echo "--- Broken cross-ref ---"
 git ls-files 'docs/app-map/*.md' 2>/dev/null | while read -r f; do

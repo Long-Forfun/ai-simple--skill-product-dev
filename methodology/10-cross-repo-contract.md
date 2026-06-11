@@ -41,6 +41,11 @@ Nội dung contract (template: `templates/contract-doc.md.template`):
 - Root CLAUDE.md repo producer: bảng "Khi sửa X → BẮT BUỘC check contract Y + update consumers"
 - Root CLAUDE.md mỗi consumer: "File này đọc schema theo contract Z (link), không tự suy diễn field"
 
+**Quy ước đường dẫn liên repo / Cross-repo path convention** (phải khai báo tường minh, đừng ngầm định):
+- Mọi repo của ecosystem checkout **cạnh nhau dưới 1 root chung** (vd `C:/Code/<repo-name>/`) — khai báo root này trong root CLAUDE.md từng repo
+- Link consumer → contract viết theo dạng `<REPOS_ROOT>/<producer-repo>/docs/contracts/<name>.contract.md` — AI resolve được, CI trong 1 repo thì không (chấp nhận: contract check của CI chỉ chạy phía producer qua hook nguyên tắc 08)
+- Repo đổi tên/di chuyển = breaking change của MỌI contract nó produce — ghi vào changelog từng contract
+
 ---
 
 ## Quy tắc cứng / Hard rules

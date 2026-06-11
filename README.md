@@ -54,7 +54,7 @@ And since **v2** (for when the project grows — pain point #4: *honor-system me
 3. Tạo `.claude/commands/fl.md` từ `templates/fl.command.md.template`
 4. Tạo `.claude/agents/context-router.md` từ `templates/context-router.agent.md.template`
 5. Cài hook versioned: `mkdir .githooks` → copy `templates/pre-commit.hook.template` vào `.githooks/pre-commit` → `git config core.hooksPath .githooks` → commit folder `.githooks` (sửa 3 biến CONFIG nếu không phải Supabase; verify: `sh .githooks/pre-commit --self-test`)
-6. Đọc `methodology/README.md` để hiểu 10 nguyên tắc
+6. Đọc `methodology/README.md` để hiểu 11 nguyên tắc
 
 ### EN
 1. Copy `templates/CLAUDE.md.template` → project root, rename to `CLAUDE.md`
@@ -62,7 +62,7 @@ And since **v2** (for when the project grows — pain point #4: *honor-system me
 3. Create `.claude/commands/fl.md` from `templates/fl.command.md.template`
 4. Create `.claude/agents/context-router.md` from `templates/context-router.agent.md.template`
 5. Install the versioned hook: `mkdir .githooks` → copy `templates/pre-commit.hook.template` to `.githooks/pre-commit` → `git config core.hooksPath .githooks` → commit `.githooks` (edit the 3 CONFIG vars if not Supabase; verify: `sh .githooks/pre-commit --self-test`)
-6. Read `methodology/README.md` to grasp the 10 principles
+6. Read `methodology/README.md` to grasp the 11 principles
 
 ---
 
@@ -72,18 +72,19 @@ And since **v2** (for when the project grows — pain point #4: *honor-system me
 ai-simple--skill-product-dev/
 ├── README.md                    # This file
 ├── SKILL.md                     # Claude Code skill manifest (auto-discoverable)
-├── methodology/                 # 10 principles, deep-dive
+├── methodology/                 # 11 principles, deep-dive
 │   ├── README.md                # Principles index
 │   ├── 01-hierarchical-context.md
 │   ├── 02-app-map-pattern.md
 │   ├── 03-context-routing.md
 │   ├── 04-doc-test-sync.md
 │   ├── 05-logic-vs-request.md
-│   ├── 06-pre-flight-checklist.md
+│   ├── 06-pre-flight-checklist.md       # v3 — risk tier: tự chạy default an toàn, confirm chỉ khi RED
 │   ├── 07-memory-as-feedback.md
 │   ├── 08-automated-enforcement.md      # v2 — hook chặn, lint, report drift
 │   ├── 09-generated-vs-authored-docs.md # v2 — máy sinh "cái gì", người viết "tại sao"
-│   └── 10-cross-repo-contract.md        # v2 — schema chung = contract đánh version
+│   ├── 10-cross-repo-contract.md        # v2 — schema chung = contract đánh version
+│   └── 11-ops-layer.md                  # v2.2 — runbook, state registry, routing sự cố
 └── templates/                   # Drop-in files, just edit placeholders
     ├── CLAUDE.md.template
     ├── app-map-README.md.template
@@ -92,7 +93,8 @@ ai-simple--skill-product-dev/
     ├── context-router.agent.md.template
     ├── fl.command.md.template
     ├── pre-commit.hook.template         # v2 — enforcement hook (chạy được ngay với default Supabase)
-    ├── doc-health-report.sh.template    # v2 — report tuần: drift %, stale docs, broken links
+    ├── doc-health-report.sh.template    # v2 — report tuần: drift %, stale docs, broken links, lint
+    ├── runbook.md.template              # v2.2 — runbook per service chạy nền
     └── contract-doc.md.template         # v2 — cross-repo contract
 ```
 

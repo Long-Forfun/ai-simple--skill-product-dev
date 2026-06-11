@@ -92,17 +92,18 @@ Khi làm việc trong module → đọc CLAUDE.md tương ứng:
 - ...
 
 ## Context routing — `/fl <task>`
-Trước khi sửa/dev → gọi:
+Trước khi sửa/dev (task chạm nhiều domain hoặc session mới) → gọi:
 ```
 /fl <mô tả task>
 ```
-→ Spawn `context-router` agent → output ordered list `.md` cần đọc + pre-flight flags.
+→ Spawn `context-router` agent → output ordered list `.md` cần đọc + risk tier (GREEN/YELLOW: code luôn, assumptions báo cuối; RED: 1 câu confirm gộp). Task trivial 1 file → skip `/fl`.
 
 Agent: `.claude/agents/context-router.md`. Slash: `.claude/commands/fl.md`.
 
 ## Workflow trọng yếu
 - Feature mới → `docs/app-map/21-feature-workflow.md`
 - Test → `docs/app-map/22-test-organization.md`
+- **Sự cố hệ thống chạy nền** ("X không chạy/sập") → `docs/app-map/ops/runbook-X.md` TRƯỚC TIÊN, rồi mới tới code (nguyên tắc 11)
 
 ## Quick commands
 ```bash

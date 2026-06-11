@@ -1,7 +1,7 @@
-# Methodology — 10 nguyên tắc / 10 principles
+# Methodology — 11 nguyên tắc / 11 principles
 
-> 10 nguyên tắc cốt lõi. Đọc tuần tự, mỗi file 5–10 phút. Nguyên tắc 01–07 cho mọi project; 08–10 là lớp scale (bắt buộc khi project/ecosystem phình to).
-> *(EN: 10 core principles. 01–07 apply to every project; 08–10 are the scale layer — mandatory as the project/ecosystem grows.)*
+> 11 nguyên tắc cốt lõi. Đọc tuần tự, mỗi file 5–10 phút. Nguyên tắc 01–07 cho mọi project; 08–11 là lớp scale & vận hành (bắt buộc khi project/ecosystem phình to hoặc có process chạy nền).
+> *(EN: 11 core principles. 01–07 apply to every project; 08–11 are the scale & ops layer — mandatory as the project grows or runs background processes.)*
 
 ---
 
@@ -14,11 +14,12 @@
 | 03 | [context-routing.md](03-context-routing.md) | Slash command + sub-agent |
 | 04 | [doc-test-sync.md](04-doc-test-sync.md) | Code = Doc = Test (cùng commit) |
 | 05 | [logic-vs-request.md](05-logic-vs-request.md) | Phân loại utterance |
-| 06 | [pre-flight-checklist.md](06-pre-flight-checklist.md) | Flag risk trước khi code |
+| 06 | [pre-flight-checklist.md](06-pre-flight-checklist.md) | **v3** — Risk tier GREEN/YELLOW/RED: tự chạy với default an toàn, confirm chỉ khi không thể quay đầu |
 | 07 | [memory-as-feedback.md](07-memory-as-feedback.md) | Persist preference cross-session |
 | 08 | [automated-enforcement.md](08-automated-enforcement.md) | **v2** — Hook chặn, lint cảnh báo, report đo drift |
 | 09 | [generated-vs-authored-docs.md](09-generated-vs-authored-docs.md) | **v2** — Người viết "tại sao", máy sinh "cái gì" |
 | 10 | [cross-repo-contract.md](10-cross-repo-contract.md) | **v2** — Schema dùng chung = contract đánh version |
+| 11 | [ops-layer.md](11-ops-layer.md) | **v2.2** — Runbook per service, state registry, routing sự cố |
 
 ---
 
@@ -59,6 +60,8 @@
 | DB > 15 migrations / app > 50 routes / content hàng nghìn item | Tách docs máy sinh `_generated/` (09) |
 | > 1 repo chia sẻ schema/file/utility | Contract + bảng SYNC (10) |
 | Nhiều người/agent commit song song | Hook trên MỌI máy + CI lint (08) |
+| ≥ 1 process chạy nền (cron, agent, pipeline) | Domain `ops/` + runbook per service (11) |
+| User phàn nàn "phải confirm lặt vặt" | Re-calibrate tier theo 06 v3 — confirm chỉ cho RED |
 
 ---
 
@@ -75,6 +78,8 @@
 | Invariant chỉ dựa kỷ luật tay | Drift chắc chắn xảy ra khi scale — phải hook (08) |
 | Viết tay doc inventory (schema/routes) | Stale sau 1 tuần — máy sinh (09) |
 | Schema chung giữa repo không có contract | Silent break chéo repo (10) |
+| Confirm cho việc reversible | User thành nút OK lặt vặt — confirm mất giá trị khi RED thật đến (06 v3) |
+| Hệ thống chạy nền không có runbook | Sự cố = đoán mò + bus factor 1 (11) |
 
 ---
 

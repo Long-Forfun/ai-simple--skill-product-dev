@@ -8,11 +8,16 @@ Spawn `context-router` agent với task:
 **Task**: $ARGUMENTS
 
 Agent sẽ:
-1. Classify domain (auth / db / ui / ...)
+1. Classify domain (auth / db / ui / ops / ...)
 2. Output ordered list `.md` files cần đọc + lý do
-3. Flag pre-flight risks (DB / auth / migration / cross-module / LOGIC vs REQUEST)
-4. Đưa câu confirm cụ thể trước khi code
+3. Chấm risk tier GREEN / YELLOW / RED (nguyên tắc 06)
+4. CHỈ kèm câu confirm khi tier RED
 
 KHÔNG code, KHÔNG explore source. Chỉ ROUTE context.
 
-Sau khi agent trả output → review list, đọc các file đó, rồi confirm với user trước khi tiếp tục.
+Sau khi agent trả output → đọc các file trong list, rồi:
+- **GREEN**: code luôn.
+- **YELLOW**: code luôn theo phương án an toàn (reversible bắt buộc), ghi mục `## Assumptions` trong báo cáo cuối — KHÔNG hỏi trước.
+- **RED**: hỏi đúng 1 câu confirm gộp của router (kèm phương án khuyến nghị), đợi trả lời rồi mới code phần RED — phần còn lại của task vẫn tự làm.
+
+Skip `/fl` cho task trivial (1 file, đã biết đường, < 5 phút) — routing tốn ~1-2K tokens, chỉ đáng khi task chạm nhiều domain hoặc session mới.

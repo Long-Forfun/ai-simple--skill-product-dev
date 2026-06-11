@@ -1,0 +1,55 @@
+# Runbook — {{SERVICE_NAME}}
+
+> Load khi: {{SERVICE_NAME}} không chạy / chạy sai / cần restart / cần kiểm tra sức khỏe.
+> Viết cho người đang cuống: mọi lệnh copy-paste được ngay, kèm output mong đợi.
+
+**Last updated**: {{YYYY-MM-DD}}
+
+---
+
+## Tổng quan 30 giây
+
+- **Làm gì**: {{1 câu — vd "đăng bài Facebook 2 lần/ngày theo plan.json"}}
+- **Chạy bằng**: {{cơ chế — vd "Windows Task Scheduler task `xyz-morning` 9:11 + `xyz-evening` 20:06"}}
+- **Phụ thuộc**: {{services/files — vd "plan.json từ repo X, Graph API token trong config/pages.json"}}
+
+## Start / Stop / Restart
+
+```bash
+# Chạy tay (foreground, xem log trực tiếp)
+{{python main.py --batch morning}}
+
+# Kiểm tra scheduled task đang bật
+{{schtasks /query /tn "task-name"}}
+
+# Tắt / bật schedule
+{{schtasks /change /tn "task-name" /disable    # /enable}}
+```
+
+## Health check
+
+```bash
+{{python main.py --status}}
+```
+**Output mong đợi**: {{vd "status: ok, last_run: <hôm nay>, pending: 0"}}
+**Nếu khác**: xem mục Lỗi thường gặp.
+
+## Log ở đâu
+
+- {{logs/service.log}} — log chính, tail 50 dòng cuối trước tiên
+- {{state/*.json}} — trạng thái (schema: xem `ops/02-state-registry.md`)
+
+## Lỗi thường gặp
+
+| Triệu chứng | Nguyên nhân | Xử lý |
+|---|---|---|
+| {{vd "không đăng bài sáng"}} | {{token hết hạn}} | {{lệnh refresh + verify}} |
+| {{...}} | {{...}} | {{...}} |
+| {{...}} | {{...}} | {{...}} |
+
+> Lỗi mới gặp lần đầu → thêm dòng vào bảng này CÙNG COMMIT với fix (nguyên tắc 11 §4).
+
+## Escalation — khi nào bó tay
+
+- {{vd "Graph API trả lỗi 368 (tài khoản bị hạn chế) → KHÔNG retry, báo user check Business Manager"}}
+- {{điều kiện KHÔNG được tự xử — vd "không bao giờ xóa state/published.json để 'reset'"}}

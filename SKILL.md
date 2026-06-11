@@ -1,6 +1,6 @@
 ---
 name: ai-simple-product-dev
-description: Methodology for organizing software projects to be AI-agent-friendly. Use when bootstrapping a new project, retrofitting docs structure for AI pair-programming, onboarding an AI agent to an existing codebase, or when the user reports symptoms like "AI hallucinates", "context too long", "docs out of sync with code", "Claude/Cursor doesn't understand my project", "docs drift as the project grows", "schema change broke another repo". Provides hierarchical context, app-map pattern (with domain-tree scaling), context routing, doc+test sync invariant, LOGIC vs REQUEST classification, pre-flight risk flags, memory-as-feedback, automated enforcement hooks, generated-vs-authored docs split, cross-repo contracts, plus ready-to-copy templates.
+description: Methodology for organizing software projects to be AI-agent-friendly. Use when bootstrapping a new project, retrofitting docs structure for AI pair-programming, onboarding an AI agent to an existing codebase, or when the user reports symptoms like "AI hallucinates", "context too long", "docs out of sync with code", "Claude/Cursor doesn't understand my project", "docs drift as the project grows", "schema change broke another repo", "AI asks me to confirm every little thing", "nobody knows how to restart the bot". Provides hierarchical context, app-map pattern (with domain-tree scaling), context routing, doc+test sync invariant, LOGIC vs REQUEST classification, risk-tiered pre-flight (auto-proceed on reversible work, single batched confirm only at points of no return), memory-as-feedback, automated enforcement hooks, generated-vs-authored docs split, cross-repo contracts, ops runbooks, plus ready-to-copy templates.
 ---
 
 # AI-Simple Product Dev
@@ -13,21 +13,22 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 - User hỏi "làm sao Claude/Cursor hiểu project nhanh"
 - Project phình to: root CLAUDE.md vượt budget, app-map > 20 file, nhiều repo chia sẻ schema → áp dụng lớp scale (08–10)
 
-## 10 nguyên tắc cốt lõi
+## 11 nguyên tắc cốt lõi
 
 **Nền tảng (mọi project):**
 1. **Hierarchical Context** — root `CLAUDE.md` < 6000 tokens, point sang module-level `CLAUDE.md`
 2. **App-map Pattern** — `docs/app-map/01-*.md`, `02-*.md`… mỗi file 1 chủ đề canonical; > 20 file → cây 2 tầng theo domain
-3. **Context Routing** — `/fl <task>` slash + `context-router` sub-agent → ordered file list
+3. **Context Routing** — `/fl <task>` slash + `context-router` sub-agent → ordered file list + risk tier; skip cho task trivial
 4. **Doc + Test Sync Invariant** — code change BẮT BUỘC pair với doc + test cùng commit
 5. **LOGIC vs REQUEST** — phân loại utterance: hỏi (LOGIC) → docs/memory; yêu cầu (REQUEST) → commit
-6. **Pre-flight Checklist** — flag DB / auth / migration risk TRƯỚC khi code
-7. **Memory as Feedback** — persist user preferences cross-session
+6. **Pre-flight Risk Tiers (v3)** — GREEN (reversible bằng git): đi thẳng; YELLOW (reversible có chủ đích — bảng mới, cột nullable): tự làm phương án an toàn + Assumptions cuối task, KHÔNG hỏi; RED (không thể quay đầu — DROP, RLS nới lỏng, mutate prod): đúng 1 câu confirm gộp kèm phương án khuyến nghị. Confirm là ngoại lệ đắt giá, không phải nghi thức
+7. **Memory as Feedback** — persist user preferences cross-session; user trả lời cùng loại câu hỏi 2 lần → ghi memory, không hỏi lại
 
-**Lớp scale (v2 — bắt buộc khi phình to):**
+**Lớp scale & vận hành (v2 — bắt buộc khi phình to / có process chạy nền):**
 8. **Automated Enforcement** — pre-commit hook chặn (migration↔doc sync, token budget, contract version), CI lint cảnh báo, report tuần đo drift. Invariant tự giác = invariant sẽ chết
 9. **Generated vs Authored Docs** — người viết "tại sao" (decisions, invariants, flows); máy sinh "cái gì" (`_generated/schema.md`, `routes.md`, content-stats) từ source of truth thật, regenerate trong hook/CI
-10. **Cross-Repo Contract** — mỗi schema/file/utility dùng chung giữa nhiều repo có 1 file `docs/contracts/<name>.contract.md` ở producer, đánh version, consumers tự đăng ký; root CLAUDE.md hai đầu có bảng SYNC
+10. **Cross-Repo Contract** — mỗi schema/file/utility dùng chung giữa nhiều repo có 1 file `docs/contracts/<name>.contract.md` ở producer, đánh version, consumers tự đăng ký; root CLAUDE.md hai đầu có bảng SYNC; mọi repo checkout cạnh nhau dưới 1 root khai báo tường minh
+11. **Ops Layer** — project có process chạy nền (cron/agent/pipeline) phải có `docs/app-map/ops/`: runbook per service (start/stop, health, log, lỗi thường gặp, escalation), state registry, routing "sự cố → runbook trước code"; fix sự cố → update runbook cùng commit
 
 ## Workflow áp dụng
 
@@ -47,11 +48,12 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 - `methodology/03-context-routing.md` — slash + sub-agent
 - `methodology/04-doc-test-sync.md` — invariant table
 - `methodology/05-logic-vs-request.md` — classification rule
-- `methodology/06-pre-flight-checklist.md` — risk flagging
+- `methodology/06-pre-flight-checklist.md` — risk tiers GREEN/YELLOW/RED + anti-petty-review rules
 - `methodology/07-memory-as-feedback.md` — behavioral persistence
 - `methodology/08-automated-enforcement.md` — hook + lint + measurement
 - `methodology/09-generated-vs-authored-docs.md` — `_generated/` convention
-- `methodology/10-cross-repo-contract.md` — contract + bảng SYNC
+- `methodology/10-cross-repo-contract.md` — contract + bảng SYNC + path convention
+- `methodology/11-ops-layer.md` — runbook, state registry, incident routing
 
 ## Templates
 
@@ -62,7 +64,8 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 - `templates/context-router.agent.md.template` — sub-agent definition
 - `templates/fl.command.md.template` — slash command
 - `templates/pre-commit.hook.template` — enforcement hook, chạy được ngay với default Supabase; cài versioned qua `.githooks/` + `core.hooksPath`; verify bằng `--self-test`
-- `templates/doc-health-report.sh.template` — report tuần: drift %, stale app-map, broken cross-ref, token budget
+- `templates/doc-health-report.sh.template` — report tuần: drift %, stale app-map, broken cross-ref, token budget, lint Load-khi/last-updated, _generated staleness
+- `templates/runbook.md.template` — runbook per service chạy nền (5 mục tối thiểu)
 - `templates/contract-doc.md.template` — cross-repo contract
 
 ## Anti-patterns
@@ -75,3 +78,5 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 - ❌ Invariant chỉ dựa kỷ luật tay, không có hook → drift chắc chắn khi project lớn
 - ❌ Viết tay bảng schema/route inventory → stale sau 1 tuần, máy phải sinh
 - ❌ Schema dùng chung giữa repo không có contract → silent break, lỗi hiện ở repo B nhưng nguyên nhân ở repo A
+- ❌ Hỏi confirm cho việc reversible (bảng mới, cột nullable) → user thành nút OK lặt vặt, mất tốc độ; confirm chỉ dành cho điểm không thể quay đầu
+- ❌ Hệ thống chạy nền không có runbook → sự cố lúc 2h sáng = đoán mò, bus factor 1

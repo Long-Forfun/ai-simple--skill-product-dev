@@ -21,6 +21,11 @@ Phương pháp này giải 3 vấn đề trên bằng:
 - **Doc + Test sync invariant** — code change BẮT BUỘC pair với doc + test cùng commit
 - **LOGIC vs REQUEST classification** — tách câu hỏi với câu yêu cầu
 
+Và từ **v2** (khi project phình to — vấn đề thứ 4: *phương pháp tự giác sẽ drift*):
+- **Automated enforcement** — pre-commit hook chặn vi phạm thay vì dựa kỷ luật
+- **Generated vs authored docs** — schema/route/inventory máy sinh, người chỉ viết "tại sao"
+- **Cross-repo contract** — schema dùng chung giữa nhiều repo có contract đánh version
+
 ### EN
 When pair-programming with an AI agent, 3 common pain points:
 1. **Cold start burns tokens** — every new session must re-explain the codebase
@@ -34,6 +39,11 @@ This methodology solves all 3 with:
 - **Doc + Test sync invariant** — code changes MUST ship with doc + test in the same commit
 - **LOGIC vs REQUEST classification** — separate questions from action requests
 
+And since **v2** (for when the project grows — pain point #4: *honor-system methodology drifts*):
+- **Automated enforcement** — pre-commit hooks block violations instead of relying on discipline
+- **Generated vs authored docs** — schemas/routes/inventories are machine-generated; humans only write the "why"
+- **Cross-repo contract** — schemas shared across repos get a versioned contract file
+
 ---
 
 ## Quick start (5 phút / 5 min)
@@ -43,14 +53,16 @@ This methodology solves all 3 with:
 2. Tạo thư mục `docs/app-map/` + copy `templates/app-map-README.md.template` vào
 3. Tạo `.claude/commands/fl.md` từ `templates/fl.command.md.template`
 4. Tạo `.claude/agents/context-router.md` từ `templates/context-router.agent.md.template`
-5. Đọc `methodology/README.md` để hiểu 7 nguyên tắc
+5. Copy `templates/pre-commit.hook.template` → `.git/hooks/pre-commit` (sửa pattern cho đúng project)
+6. Đọc `methodology/README.md` để hiểu 10 nguyên tắc
 
 ### EN
 1. Copy `templates/CLAUDE.md.template` → project root, rename to `CLAUDE.md`
 2. Create `docs/app-map/` directory, copy `templates/app-map-README.md.template` into it
 3. Create `.claude/commands/fl.md` from `templates/fl.command.md.template`
 4. Create `.claude/agents/context-router.md` from `templates/context-router.agent.md.template`
-5. Read `methodology/README.md` to grasp the 7 principles
+5. Copy `templates/pre-commit.hook.template` → `.git/hooks/pre-commit` (edit patterns for your project)
+6. Read `methodology/README.md` to grasp the 10 principles
 
 ---
 
@@ -60,7 +72,7 @@ This methodology solves all 3 with:
 ai-simple--skill-product-dev/
 ├── README.md                    # This file
 ├── SKILL.md                     # Claude Code skill manifest (auto-discoverable)
-├── methodology/                 # 7 principles, deep-dive
+├── methodology/                 # 10 principles, deep-dive
 │   ├── README.md                # Principles index
 │   ├── 01-hierarchical-context.md
 │   ├── 02-app-map-pattern.md
@@ -68,14 +80,19 @@ ai-simple--skill-product-dev/
 │   ├── 04-doc-test-sync.md
 │   ├── 05-logic-vs-request.md
 │   ├── 06-pre-flight-checklist.md
-│   └── 07-memory-as-feedback.md
+│   ├── 07-memory-as-feedback.md
+│   ├── 08-automated-enforcement.md      # v2 — hook chặn, lint, report drift
+│   ├── 09-generated-vs-authored-docs.md # v2 — máy sinh "cái gì", người viết "tại sao"
+│   └── 10-cross-repo-contract.md        # v2 — schema chung = contract đánh version
 └── templates/                   # Drop-in files, just edit placeholders
     ├── CLAUDE.md.template
     ├── app-map-README.md.template
     ├── app-map-doc.md.template
     ├── ADR.md.template
     ├── context-router.agent.md.template
-    └── fl.command.md.template
+    ├── fl.command.md.template
+    ├── pre-commit.hook.template         # v2 — enforcement hook
+    └── contract-doc.md.template         # v2 — cross-repo contract
 ```
 
 ---

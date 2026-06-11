@@ -1,0 +1,61 @@
+#!/bin/sh
+# pre-commit — Automated enforcement (nguyên tắc 08 / principle 08)
+#
+# Cài đặt / Install:
+#   cp templates/pre-commit.hook.template .git/hooks/pre-commit
+#   chmod +x .git/hooks/pre-commit        (mac/linux; Windows Git Bash tự chạy được)
+#
+# Sửa các pattern {{...}} cho đúng project của bạn trước khi dùng.
+# Edit the {{...}} patterns to match your project before use.
+
+set -e
+CHANGED=$(git diff --cached --name-only)
+FAIL=0
+
+# ── 1. Migration đổi → doc database phải đổi cùng commit ──────────────
+# Sửa pattern cho đúng project: supabase/migrations | prisma/migrations | db/migrate ...
+if echo "$CHANGED" | grep -qE '{{MIGRATIONS_PATH|supabase/migrations}}/.*\.sql$'; then
+  if ! echo "$CHANGED" | grep -qiE 'docs/.*(database|db|schema).*\.md$'; then
+    echo "❌ BLOCK: migration thay đổi nhưng doc database không update."
+    echo "   → Update docs/app-map/*database*.md (hoặc regenerate _generated/schema.md) rồi commit lại."
+    FAIL=1
+  fi
+fi
+
+# ── 2. Root CLAUDE.md token budget ─────────────────────────────────────
+# ~6000 tokens ≈ 24000 chars (EN ~4 chars/token; VN ~3 chars/token → có thể hạ xuống 20000)
+BUDGET={{CLAUDE_MD_CHAR_BUDGET|24000}}
+if echo "$CHANGED" | grep -qx 'CLAUDE.md'; then
+  SIZE=$(wc -c < CLAUDE.md | tr -d ' ')
+  if [ "$SIZE" -gt "$BUDGET" ]; then
+    echo "❌ BLOCK: CLAUDE.md ${SIZE} chars > budget ${BUDGET} (~6K tokens)."
+    echo "   → Tách bảng/chi tiết ra docs/app-map/, root chỉ giữ rule + pointer (nguyên tắc 01)."
+    FAIL=1
+  fi
+fi
+
+# ── 3. Schema dùng chung đổi → contract phải đổi cùng commit ───────────
+# Khai báo từng cặp schema→contract (nguyên tắc 10). Thêm dòng cho mỗi schema chung.
+check_contract() {
+  SCHEMA_PATTERN="$1"; CONTRACT_PATTERN="$2"
+  if echo "$CHANGED" | grep -qE "$SCHEMA_PATTERN"; then
+    if ! echo "$CHANGED" | grep -qE "$CONTRACT_PATTERN"; then
+      echo "❌ BLOCK: schema dùng chung ($SCHEMA_PATTERN) đổi nhưng contract không update."
+      echo "   → Update $CONTRACT_PATTERN (bump version nếu breaking) rồi commit lại."
+      FAIL=1
+    fi
+  fi
+}
+# Ví dụ / example:
+# check_contract 'outputs/.*plan.*\.json|modules/plan_writer\.py' 'docs/contracts/plan-json\.contract\.md'
+
+# ── 4. WARN (không chặn): app-map file mới thiếu chuẩn ────────────────
+for f in $(echo "$CHANGED" | grep -E 'docs/app-map/.*\.md$' | grep -v '_generated/' || true); do
+  [ -f "$f" ] || continue
+  if ! head -5 "$f" | grep -qiE 'load (khi|when)'; then
+    echo "⚠️  WARN: $f thiếu dòng 'Load khi/Load when' ở đầu file (nguyên tắc 02)."
+  fi
+done
+
+[ "$FAIL" -eq 1 ] && exit 1
+exit 0

@@ -1,0 +1,87 @@
+# 08 — Automated Enforcement
+
+> Invariant sống bằng kỷ luật tay sẽ chết khi project phình to. Biến quy tắc thành cơ chế: pre-commit hook chặn, CI lint cảnh báo, report tuần đo drift.
+> *(EN: Discipline-based invariants die as the project grows. Turn rules into mechanisms: pre-commit hooks block, CI lints warn, weekly reports measure drift.)*
+
+---
+
+## Vấn đề / The problem
+
+Các nguyên tắc 01–04 đều là **quy tắc tự giác**:
+- Root CLAUDE.md < 6K tokens → ai đếm? Thực tế root phình dần qua từng commit, không ai để ý
+- Doc + Test sync invariant → giữ được khi 1 người commit chậm; gãy khi nhiều người (hoặc nhiều AI agent) commit nhanh
+- Last-updated date → có ghi nhưng không ai quét xem doc nào đã stale
+
+Hậu quả: drift xảy ra **ngay trong project tuân thủ tốt nhất**, và chỉ phát hiện khi AI bắt đầu đề xuất sai.
+
+*(EN: Principles 01–04 are honor-system rules. Drift happens even in the most disciplined projects, and is only noticed when the AI starts suggesting wrong things.)*
+
+---
+
+## Giải pháp / The solution
+
+3 tầng enforcement, từ cứng đến mềm:
+
+```
+TẦNG 1 — pre-commit hook (BLOCK)
+├── Migration đổi mà doc database không đổi → chặn commit
+├── Root CLAUDE.md vượt token budget → chặn commit
+└── Schema dùng chung đổi mà contract không bump version → chặn (xem nguyên tắc 10)
+
+TẦNG 2 — CI lint (WARN)
+├── App-map file thiếu "Load khi" / last-updated → warning
+├── Module > 5 file chưa có CLAUDE.md → warning
+└── Cross-ref tới file không tồn tại (broken link) → warning
+
+TẦNG 3 — report định kỳ (MEASURE)
+├── Doc stale: app-map last-updated lệch > 30 ngày so với code cùng domain
+├── Drift %: sample 20 commit gần nhất, đếm % có doc update đi kèm
+└── Token budget trend: size CLAUDE.md qua thời gian
+```
+
+Template hook sẵn dùng: `templates/pre-commit.hook.template`
+
+---
+
+## Quy tắc cứng / Hard rules
+
+1. **Hook cài từ tuần đầu** — retrofit hook vào project đang chạy khó gấp 10 lần (phải sửa hết vi phạm tồn đọng trước)
+2. **BLOCK chỉ dành cho invariant cốt tử** (DB doc sync, token budget, contract version) — block quá nhiều thứ → dev sẽ `--no-verify` và toàn bộ cơ chế chết
+3. **Token budget đo bằng proxy ký tự** — ~4 chars/token cho tiếng Anh, ~3 chars/token cho tiếng Việt; budget 6K tokens ≈ chặn ở 20.000–24.000 chars. Không cần tiktoken chính xác, cần ngưỡng ổn định
+4. **Mapping migration→doc khai báo trong hook** — mỗi project tự sửa pattern (vd `supabase/migrations/*.sql` → `docs/app-map/*database*.md`)
+5. **Report tuần phải gửi đến nơi có người đọc** — Telegram/Slack, không phải file log không ai mở
+
+---
+
+## Đo lường tự động / Automated measurement
+
+Nguyên tắc gốc định nghĩa 4 metric (onboard time, drift %, hallucination rate, wrong-commit rate) nhưng không nói cách thu thập. Cách thu:
+
+| Metric | Cách thu tự động |
+|---|---|
+| Doc drift % | Script đếm: trong 20 commit gần nhất, % commit sửa `src/` có kèm sửa `docs/` |
+| Doc staleness | So `git log -1 --format=%ci` của app-map file vs code cùng domain |
+| Hallucination rate | Nếu có bot triage (Telegram/issue bot): đếm report gắn tag "AI chẩn đoán sai do doc cũ" |
+| Token budget trend | Hook ghi size CLAUDE.md vào log mỗi commit → vẽ trend |
+
+---
+
+## Anti-patterns
+
+| Anti-pattern | Hậu quả |
+|---|---|
+| Block mọi thứ trong hook | Dev dùng `--no-verify` → cơ chế chết toàn bộ |
+| Hook chỉ cài máy 1 người | Người/agent khác commit không bị chặn → drift quay lại |
+| Lint mà không có owner xử lý warning | Warning chồng đống → mù cảnh báo |
+| Đo metric nhưng không có ngưỡng hành động | Có số liệu, không có quyết định |
+| Retrofit hook khi đã 500 commit vi phạm | Hook fail mọi commit → bị gỡ ngay tuần đầu |
+
+---
+
+## Checklist áp dụng / Adoption checklist
+
+- [ ] `templates/pre-commit.hook.template` đã copy vào `.git/hooks/pre-commit` (hoặc qua husky/pre-commit framework)
+- [ ] Pattern migration→doc đã sửa đúng cho project
+- [ ] Token budget threshold đã set (mặc định 24.000 chars)
+- [ ] Có script/report stale-doc chạy định kỳ, output đến kênh có người đọc
+- [ ] Quy ước nhóm: `--no-verify` chỉ dùng khi hotfix, phải trả nợ doc trong 24h

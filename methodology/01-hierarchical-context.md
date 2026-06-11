@@ -45,6 +45,15 @@ APP-MAP (docs/app-map/NN-*.md)      < 3000 tokens / file
 2. **Mỗi module có 1 CLAUDE.md** khi module có > 5 file — lý do: AI cần catalog
 3. **App-map mỗi file 1 chủ đề canonical** — không trộn (xem nguyên tắc 02)
 4. **Pointer phải là relative path đầy đủ** — `docs/app-map/03-database.md`, không phải "xem doc database"
+5. **v2 — budget phải được hook enforce, không tự giác** — root là thuế token trả MỖI session; thực tế root phình dần qua từng commit mà không ai đếm. Cài `templates/pre-commit.hook.template` chặn ở ~24.000 chars (xem nguyên tắc 08)
+
+### Root diet — khi root đã phình quá budget
+
+Thứ tự cắt (giữ lại ít nhất, trỏ đi nhiều nhất):
+1. Bảng chi tiết (schema, route list, env vars) → chuyển sang app-map / `_generated/`
+2. Hướng dẫn theo task ("khi làm X đọc Y") → giữ bảng routing 10–15 dòng, phần còn lại sang app-map README
+3. Lịch sử/changelog → ADR hoặc xóa
+4. Root sau diet chỉ còn: vị trí trong ecosystem, quy tắc CẤM/BẮT BUỘC, bảng sync, bảng routing, quick commands
 
 ---
 

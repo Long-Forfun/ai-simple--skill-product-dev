@@ -35,6 +35,38 @@ Tuỳ project có thể có thêm 11+, gap số OK (vd 11 đã merge vào 03).
 
 ---
 
+## Khi app-map > 20 file — phân cấp theo domain / Scaling past 20 files
+
+Danh sách phẳng đánh số gãy ở ~20 file: số thứ tự không còn nói lên thứ tự load (`37-xyz.md` chẳng có ý nghĩa ưu tiên), index README phình thành file phải đọc toàn bộ, context-router chậm dần.
+
+**v2 — 2026-06-11**: khi vượt 20 file, chuyển sang cây 2 tầng theo domain:
+
+```
+docs/app-map/
+├── README.md                  # Router tầng 1: chỉ list DOMAIN + load khi nào
+├── core/                      # Domain: nền tảng
+│   ├── README.md              # Router tầng 2: list file trong domain
+│   ├── 01-pages.md
+│   └── 02-database-design.md
+├── engine/                    # Domain: nghiệp vụ chính (vd grading, matching…)
+│   ├── README.md
+│   ├── 01-test-engine.md
+│   └── 02-adaptive-engine.md
+├── ops/                       # Domain: vận hành (cron, state, runbook)
+│   └── ...
+└── _generated/                # Docs máy sinh — xem nguyên tắc 09
+    ├── schema.md
+    └── routes.md
+```
+
+Quy tắc cây 2 tầng:
+1. **README tầng 1 < 1K tokens** — chỉ domain + "load domain này khi…", không list từng file
+2. **Đánh số reset trong mỗi domain** — `engine/01-...` độc lập với `core/01-...`
+3. **Migrate dần** — file cũ giữ nguyên + thêm dòng `MOVED → core/02-database-design.md`; xóa sau 1 tháng
+4. **Context-router đọc 2 bước**: README tầng 1 → chọn domain → README domain → chọn file. Không bao giờ đọc cả cây.
+
+---
+
 ## Quy tắc viết app-map / App-map writing rules
 
 1. **1 file = 1 chủ đề** — không trộn pages với dialogs
@@ -57,6 +89,8 @@ Tuỳ project có thể có thêm 11+, gap số OK (vd 11 đã merge vào 03).
 | Không có "Load khi" | AI đoán bừa khi nào load |
 | Không có last-updated | Không biết doc còn fresh không |
 | Doc nói chung chung "xem code" | Vô dụng cho AI mới onboard |
+| > 20 file vẫn để list phẳng | Numbering vô nghĩa, index phình — phân cấp domain (xem trên) |
+| Viết tay bảng schema/route inventory | Stale sau 1 tuần — máy phải sinh (nguyên tắc 09) |
 
 ---
 

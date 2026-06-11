@@ -1,0 +1,53 @@
+# Contract — {{SCHEMA_NAME}}
+
+> Single source of truth cho schema dùng chung giữa nhiều repo. Sống ở repo PRODUCER. Mọi consumer link tới file này — không copy.
+> *(EN: Single source of truth for a schema shared across repos. Lives in the PRODUCER repo. Consumers link here — never copy.)*
+
+**Version**: v{{N}} — {{YYYY-MM-DD}}
+
+---
+
+## Producer
+
+| Repo | File | Function ghi / Writer |
+|---|---|---|
+| {{PRODUCER_REPO}} | {{path/to/output.json}} | {{module.write_fn()}} |
+
+## Consumers
+
+> Consumer mới: tự thêm mình vào bảng này trong cùng PR bắt đầu đọc schema.
+
+| Repo | File đọc | Field nào được dùng |
+|---|---|---|
+| {{CONSUMER_REPO_1}} | {{path/reader.py}} | {{items[].payload.title, items[].status}} |
+| {{CONSUMER_REPO_2}} | {{...}} | {{...}} |
+
+---
+
+## Schema
+
+```jsonc
+{
+  "version": "{{N}}",          // BẮT BUỘC — consumer check field này
+  "{{field}}": "{{type}}",     // required — {{mô tả}}
+  "{{field2}}": "{{type}}"     // optional — {{mô tả, default}}
+}
+```
+
+{{Ví dụ payload thật / real example payload}}
+
+---
+
+## Compatibility rules
+
+- **Non-breaking** (không bump version): thêm field optional, thêm giá trị enum mới có fallback
+- **Breaking** (bump version + sửa MỌI consumer cùng đợt): đổi tên/xóa field, đổi type, đổi semantics field cũ
+- Consumer gặp version lạ → log warning + dùng fallback an toàn, KHÔNG crash
+
+---
+
+## Change log
+
+| Ngày | Version | Thay đổi | Consumers đã update |
+|---|---|---|---|
+| {{YYYY-MM-DD}} | v1 | Khởi tạo contract | — |

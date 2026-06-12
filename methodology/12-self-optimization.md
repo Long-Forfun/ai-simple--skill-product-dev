@@ -20,7 +20,8 @@ ttl_days: 180
 ```
 
 - `covers:` — danh sách FILE/DIR **có thật** (phẩy ngăn cách) mà doc này mô tả; match anchored: đúng path đó hoặc mọi thứ bên dưới (`src/lib` KHÔNG khớp `src/lib-utils`). **Doc không có covers = doc không được bảo vệ.** Ngoại lệ hợp lệ (exemption list): README router của app-map, doc thuần decision/vision/ADR, `_generated/`. Tùy chọn `gate: warn` cho vùng code churn rất cao (mặc định block)
-- `last_verified:` — ngày lần cuối nội dung doc được đối chiếu với code thật (không phải ngày sửa doc!)
+- `last_verified:` — ngày lần cuối nội dung doc được đối chiếu với code thật (không phải ngày sửa doc!). Mốc này chỉ được máy NÂNG lên khi commit chạm doc là **gate-1-shaped** (cùng chạm covers path) hoặc message bắt đầu `re-verify(` — commit chore/typo chạm doc KHÔNG rửa được trạng thái SUSPECT (chống laundering)
+- Chi phí: symbol-scan (check hàm trong doc còn tồn tại) chạy ở report `--ci`/tuần; hook per-commit dùng `--status --fast` (skip symbol) để giữ commit nhanh — dead symbol hiếm khi cần phát hiện trong-phút
 - `ttl_days:` — hạn tin cậy THEO LOẠI doc: quickstart/flow hay đổi 90; architecture/decision 365. KHÔNG dùng một ngưỡng 30 ngày đồng loạt — tuổi không phải là mục (doc 300 ngày trên code không đổi vẫn VERIFIED)
 
 **3 trạng thái doc** (máy tính từ git, không đoán):

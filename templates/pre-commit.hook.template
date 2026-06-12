@@ -147,7 +147,7 @@ done
 # doc-status.md phải fresh theo COMMIT chứ không theo tuần; marker DOC-STATUS trong doc
 # được --status quản lý (xem report). Chỉ stage doc-status.md — KHÔNG auto-stage doc khác.
 if [ "$FAIL" -eq 0 ] && [ -f scripts/doc-health-report.sh ]; then
-  sh scripts/doc-health-report.sh --status >/dev/null 2>&1 || true
+  sh scripts/doc-health-report.sh --status --fast >/dev/null 2>&1 || true
   [ -f docs/app-map/_generated/doc-status.md ] && git add docs/app-map/_generated/doc-status.md 2>/dev/null
 fi
 

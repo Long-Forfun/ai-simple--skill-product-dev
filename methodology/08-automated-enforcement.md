@@ -34,7 +34,7 @@ TẦNG 2 — CI lint (WARN)
 └── Cross-ref tới file không tồn tại (broken link) → warning
 
 TẦNG 3 — report định kỳ (MEASURE)
-├── Doc stale: app-map last-updated lệch > 30 ngày so với code cùng domain
+├── Doc-lag: code trong covers đổi sau last_verified (đo theo coupling, KHÔNG theo tuổi doc — xem 12 v2)
 ├── Doc-lag: doc SUSPECT (code trong covers đổi sau last_verified) + symbol chết — xem 12 v2
 └── Token budget trend: size CLAUDE.md qua thời gian
 ```

@@ -89,7 +89,7 @@
 
 Cách biết phương pháp đang work:
 - Session mới onboard < 1 phút (từ "session start" đến "AI hỏi clarify đầu tiên")
-- Doc lệch code < 5% (random sample 20 commit gần nhất, đếm % có doc update)
+- Doc-lag = 0 (không doc nào SUSPECT — code trong covers không đổi sau last_verified; đo bằng doc-health-report)
 - AI hallucinate file/function < 1 lần / 10 turn
 - Commit nhầm khi user chỉ discuss = 0
 

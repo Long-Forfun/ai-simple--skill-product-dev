@@ -1,8 +1,15 @@
 # AI-Augmented Product Development — A Simple Skill
 
-> **VI**: Phương pháp đơn giản để tổ chức một dự án phần mềm khi đồng hành cùng AI coding agent (Claude Code, Cursor, Aider, …). Không phải framework, không phải tool — là **bộ nguyên tắc + template** giúp AI hiểu codebase nhanh, không hallucination, không bloat context.
+**TL;DR (30 giây):**
+- **Cho ai?** Dev/team dùng AI coding agent (Claude Code, Cursor, Aider) trên project ≥ 30 file có business logic thật.
+- **Giải lỗi gì?** AI hallucinate tên hàm/file, đọc lan man tốn token, doc lệch code rồi AI tin doc cũ, hỏi confirm lặt vặt, không ai biết restart con bot.
+- **Cài thế nào?** Copy 3 template (CLAUDE.md, app-map, hook) + `git config core.hooksPath .githooks` — 5 phút, có `--self-test` xác nhận chạy đúng.
+- **Được gì?** Session AI mới onboard < 1 phút; mọi doc gắn code có trạng thái VERIFIED/SUSPECT máy tính từ git — doc sai **không lọt vào suy luận của AI mà chưa qua đối chiếu**; commit đổi code mà quên doc bị chặn tại chỗ.
+- **4 lớp:** Core (context + routing + sync) → Scale (enforcement + generated docs + contract) → Ops (runbook + registry) → Optimization (coupling map + 2 cổng verify + /audit). Versions: xem [CHANGELOG.md](CHANGELOG.md).
+
+> **VI**: Phương pháp đơn giản để tổ chức một dự án phần mềm khi đồng hành cùng AI coding agent (Claude Code, Cursor, Aider, …). Không phải framework, không phải tool — là **bộ nguyên tắc + template + script đã test** giúp AI hiểu codebase nhanh, không hallucination, không bloat context.
 >
-> **EN**: A simple skill for organizing a software project when pair-programming with an AI coding agent (Claude Code, Cursor, Aider, …). Not a framework, not a tool — a **set of principles + templates** that help the AI understand the codebase quickly, without hallucination, without context bloat.
+> **EN**: A simple skill for organizing a software project when pair-programming with an AI coding agent (Claude Code, Cursor, Aider, …). Not a framework, not a tool — a **set of principles + templates + tested scripts** that help the AI understand the codebase quickly, without hallucination, without context bloat.
 
 ---
 
@@ -21,13 +28,13 @@ Phương pháp này giải 3 vấn đề trên bằng:
 - **Doc + Test sync invariant** — code change BẮT BUỘC pair với doc + test cùng commit
 - **LOGIC vs REQUEST classification** — tách câu hỏi với câu yêu cầu
 
-Và từ **v2** (khi project phình to — vấn đề thứ 4: *phương pháp tự giác sẽ drift*):
+**Lớp Scale** (khi project phình to — vấn đề thứ 4: *phương pháp tự giác sẽ drift*):
 - **Automated enforcement** — pre-commit hook chặn vi phạm thay vì dựa kỷ luật
 - **Generated vs authored docs** — schema/route/inventory máy sinh, người chỉ viết "tại sao"
 - **Cross-repo contract** — schema dùng chung giữa nhiều repo có contract đánh version
 
-Và từ **v3** (vấn đề thứ 5: *hệ chỉ biết phát hiện mà không biết tự chữa thì điểm chỉ đi xuống theo thời gian*):
-- **Self-optimization loop** — nhịp bảo trì (commit/tuần/tháng/quý) + bảng tín hiệu→hành động (khi nào UPDATE, khi nào REFACTOR, khi nào LÀM LẠI, khi nào KHAI TỬ doc) + `/audit` agent tự chấm 12 nguyên tắc bằng số đo → backlog tối ưu xếp hạng
+**Lớp Optimization** (vấn đề thứ 5: *hệ chỉ biết phát hiện mà không biết tự chữa thì điểm chỉ đi xuống theo thời gian*):
+- **Self-optimization loop** — coupling map (`covers`/`last_verified`/`ttl_days`) + 2 cổng: cổng GHI (hook chặn code-đổi-mà-doc-không-re-verify cùng commit) và cổng ĐỌC (doc SUSPECT phải được đối chiếu với code trước khi AI tin) + doc-lag/hotspot + `/audit` neo metric → backlog tối ưu xếp hạng
 
 ### EN
 When pair-programming with an AI agent, 3 common pain points:
@@ -42,13 +49,15 @@ This methodology solves all 3 with:
 - **Doc + Test sync invariant** — code changes MUST ship with doc + test in the same commit
 - **LOGIC vs REQUEST classification** — separate questions from action requests
 
-And since **v2** (for when the project grows — pain point #4: *honor-system methodology drifts*):
+**Scale layer** (for when the project grows — pain point #4: *honor-system methodology drifts*):
 - **Automated enforcement** — pre-commit hooks block violations instead of relying on discipline
 - **Generated vs authored docs** — schemas/routes/inventories are machine-generated; humans only write the "why"
 - **Cross-repo contract** — schemas shared across repos get a versioned contract file
 
-And since **v3** (pain point #5: *a system that only detects but never heals itself trends downward*):
-- **Self-optimization loop** — maintenance cadence (commit/weekly/monthly/quarterly) + a signal→action table (when to UPDATE, REFACTOR, REBUILD, or RETIRE a doc) + a `/audit` agent that scores all 12 principles with measured evidence → a ranked optimization backlog
+**Optimization layer** (pain point #5: *a system that only detects but never heals itself trends downward*):
+- **Self-optimization loop** — a doc↔code coupling map (`covers`/`last_verified`/`ttl_days`) + two gates: WRITE (hook blocks code-changed-without-doc-reverify in the same commit) and READ (SUSPECT docs must be checked against real code before the AI relies on them) + doc-lag/hotspot metrics + a metric-anchored `/audit` → ranked optimization backlog
+
+**Roadmap** (đang cân nhắc / under consideration): `npx ai-simple init|doctor|audit` CLI đóng gói toàn bộ template+script; `examples/` repo before/after (Next.js+Supabase, Python agent) với số đo onboard-time và doc-lag thật.
 
 ---
 
@@ -77,6 +86,7 @@ And since **v3** (pain point #5: *a system that only detects but never heals its
 ```
 ai-simple--skill-product-dev/
 ├── README.md                    # This file
+├── CHANGELOG.md                 # Lịch sử version (README chỉ dùng tên lớp)
 ├── SKILL.md                     # Claude Code skill manifest (auto-discoverable)
 ├── methodology/                 # 12 principles, deep-dive
 │   ├── README.md                # Principles index
@@ -107,8 +117,9 @@ ai-simple--skill-product-dev/
     ├── state-registry.md.template       # v2.2 — registry canonical cho state files
     ├── ops-schedules.md.template        # v3.0 — registry mọi cron/scheduled job
     ├── ops-external-services.md.template# v3.0 — registry API ngoài (token, rate limit, khi chết)
-    ├── audit.command.md.template        # v3.0 — /audit: tự chấm 12 nguyên tắc → backlog tối ưu
-    └── contract-doc.md.template         # v2 — cross-repo contract
+    ├── audit.command.md.template        # /audit: tự chấm 12 nguyên tắc → backlog tối ưu
+    ├── doc-health.workflow.yml.template # GitHub Actions: self-test + --status + --ci gate + artifact
+    └── contract-doc.md.template         # cross-repo contract
 ```
 
 ---

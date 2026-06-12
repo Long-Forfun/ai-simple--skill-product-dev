@@ -1,0 +1,35 @@
+# GitHub Actions — doc-health gate (nguyên tắc 08 tầng 2 + 12 v2)
+# Cài: copy vào .github/workflows/doc-health.yml (sau khi đã copy doc-health-report.sh
+# vào scripts/). fetch-depth: 0 BẮT BUỘC — các check doc-lag/attestation đọc git timestamp.
+name: doc-health
+
+on:
+  pull_request: {}
+  schedule:
+    - cron: "0 1 * * 1"   # tuần 1 lần — full scan (symbol-level) + đặt marker
+
+jobs:
+  doc-health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Self-test instrument trước khi tin kết quả của nó
+        run: sh scripts/doc-health-report.sh --self-test
+
+      - name: Regenerate doc-status (full — gồm symbol scan)
+        run: sh scripts/doc-health-report.sh --status
+
+      - name: Doc-health gate (fail PR khi doc-lag/ORPHANED/symbol chết/broken ref)
+        run: sh scripts/doc-health-report.sh --ci
+
+      - name: Upload report artifact
+        if: always()
+        run: sh scripts/doc-health-report.sh > doc-health-report.txt || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: doc-health-report
+          path: doc-health-report.txt

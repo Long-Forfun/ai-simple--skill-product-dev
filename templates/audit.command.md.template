@@ -1,0 +1,57 @@
+---
+description: Tự audit project theo 12 nguyên tắc ai-simple-product-dev → điểm + backlog tối ưu xếp hạng (chạy mỗi quý hoặc khi nghi hệ docs đang mục)
+argument-hint: [trống = full audit | tên nguyên tắc để audit riêng, vd "06" hoặc "ops"]
+---
+
+Bạn là auditor READ-ONLY (không edit, không commit). Audit project này theo phương pháp ai-simple-product-dev, scope: $ARGUMENTS (trống = full).
+
+## Bước 1 — Chấm 12 nguyên tắc bằng SỐ ĐO, không cảm tính
+
+Với mỗi nguyên tắc, chấm 0–10 kèm bằng chứng đo được (lệnh + kết quả):
+
+| # | Nguyên tắc | Đo bằng |
+|---|---|---|
+| 01 | Hierarchical context | `wc -c CLAUDE.md` vs budget 24000; đếm module > 5 file thiếu CLAUDE.md |
+| 02 | App-map | đếm file app-map (> 20 → cần domain hóa?); file > 1500 dòng; thiếu "Load khi"/last-updated |
+| 03 | Context routing | `.claude/commands` + `agents` tồn tại; keyword map còn khớp domain thật? |
+| 04 | Doc+Test sync | drift % từ 20 commit gần nhất (script doc-health hoặc tự đếm git log) |
+| 05 | LOGIC vs REQUEST | rule có trong CLAUDE.md/memory không |
+| 06 | Risk tiers | CLAUDE.md có bảng tier chưa; còn rule "confirm mọi thứ" sót lại không |
+| 07 | Memory | memory files có entry nào stale/sai so với code hiện tại |
+| 08 | Enforcement | hook cài versioned chưa (`git config core.hooksPath`); `--self-test` pass? |
+| 09 | Generated docs | `_generated/` tồn tại? cũ hơn migrations? (`git log -1 --format=%ct`) |
+| 10 | Contracts | mọi schema chia sẻ liên repo có contract? consumers list còn đúng? |
+| 11 | Ops | mọi process chạy nền có runbook? lệnh health trong runbook CHẠY THỬ được không (fire-drill — chạy thật, ghi kết quả) |
+| 12 | Self-optimization | `_generated/audit-history.md` có entry kỳ trước? backlog kỳ trước đã xử lý chưa |
+
+## Bước 2 — Semantic verify (doc nói có khớp code không)
+
+Chọn 3 doc authored RỦI RO NHẤT (database, permissions, flows chính). Với mỗi doc:
+- Trích 5–10 KHẲNG ĐỊNH kiểm chứng được (vd "bảng X có RLS owner-only", "route /admin chỉ role admin")
+- Đối chiếu từng khẳng định với `_generated/schema.md` + source code thật
+- Liệt kê: ĐÚNG / SAI / KHÔNG KIỂM ĐƯỢC — khẳng định SAI là phát hiện nghiêm trọng nhất của audit
+
+## Bước 3 — Đối chiếu bảng tín hiệu→hành động (nguyên tắc 12)
+
+Duyệt bảng tín hiệu trong `methodology/12-self-optimization.md` (hoặc bản project): tín hiệu nào ĐANG bắn mà chưa có hành động.
+
+## Bước 4 — Output (format BẮT BUỘC)
+
+```markdown
+## Audit <project> — <YYYY-MM-DD>
+Điểm: NN/120 (kỳ trước: NN — trend ↑/↓)
+
+### Điểm theo nguyên tắc
+| # | Điểm | Bằng chứng 1 dòng |
+
+### Khẳng định SAI trong docs (semantic verify)
+- <doc>: "<khẳng định>" — thực tế: <code nói gì> → REBUILD/UPDATE?
+
+### Backlog tối ưu (xếp theo tác động/effort)
+| Ưu tiên | Việc | Loại (UPDATE/REFACTOR/REBUILD/RETIRE) | Effort | Deadline đề xuất |
+
+### 1 việc đáng làm NGAY
+<việc có tác động/effort tốt nhất, kèm lệnh/file cụ thể>
+```
+
+Cuối cùng: append 1 dòng tóm tắt `<date> | <score>/120 | <top issue>` vào `docs/app-map/_generated/audit-history.md` (file duy nhất audit được phép ghi).

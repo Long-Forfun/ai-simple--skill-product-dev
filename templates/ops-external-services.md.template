@@ -1,0 +1,22 @@
+# Ops — External Services — {{PROJECT_NAME}}
+
+> Load khi: lỗi liên quan API ngoài (token hết hạn, rate limit, webhook không nhận), thêm service mới, hoặc audit phụ thuộc.
+> Registry CANONICAL cho mọi service bên ngoài hệ (nguyên tắc 11).
+
+**Last updated**: {{YYYY-MM-DD}}
+
+---
+
+## Bảng service ngoài
+
+| Service | Dùng để | Auth kiểu gì | Token sống ở đâu | Hết hạn / refresh | Rate limit | Khi nó chết thì sao |
+|---|---|---|---|---|---|---|
+| {{Facebook Graph API}} | {{đăng bài, insights}} | {{Page access token}} | {{config/pages.json — KHÔNG commit}} | {{non-expiring; chết khi đổi mật khẩu → chạy scripts/setup_pages}} | {{200 calls/h/user}} | {{retry 3x → Telegram alert, KHÔNG retry lỗi 368}} |
+| {{...}} | {{...}} | {{...}} | {{...}} | {{...}} | {{...}} | {{...}} |
+
+## Quy tắc
+
+1. **Cột "khi nó chết thì sao" là bắt buộc** — đây là cột duy nhất người ta cần lúc 2h sáng
+2. **Token location ghi đường dẫn, KHÔNG ghi giá trị** — giá trị sống trong .env/secret manager
+3. **Service mới = dòng mới CÙNG commit** với code tích hợp (Doc+Test sync, nguyên tắc 04)
+4. **Webhook inbound** cũng là external service — ghi URL endpoint, cách verify signature, cách replay khi miss

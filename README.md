@@ -26,6 +26,9 @@ Và từ **v2** (khi project phình to — vấn đề thứ 4: *phương pháp 
 - **Generated vs authored docs** — schema/route/inventory máy sinh, người chỉ viết "tại sao"
 - **Cross-repo contract** — schema dùng chung giữa nhiều repo có contract đánh version
 
+Và từ **v3** (vấn đề thứ 5: *hệ chỉ biết phát hiện mà không biết tự chữa thì điểm chỉ đi xuống theo thời gian*):
+- **Self-optimization loop** — nhịp bảo trì (commit/tuần/tháng/quý) + bảng tín hiệu→hành động (khi nào UPDATE, khi nào REFACTOR, khi nào LÀM LẠI, khi nào KHAI TỬ doc) + `/audit` agent tự chấm 12 nguyên tắc bằng số đo → backlog tối ưu xếp hạng
+
 ### EN
 When pair-programming with an AI agent, 3 common pain points:
 1. **Cold start burns tokens** — every new session must re-explain the codebase
@@ -44,6 +47,9 @@ And since **v2** (for when the project grows — pain point #4: *honor-system me
 - **Generated vs authored docs** — schemas/routes/inventories are machine-generated; humans only write the "why"
 - **Cross-repo contract** — schemas shared across repos get a versioned contract file
 
+And since **v3** (pain point #5: *a system that only detects but never heals itself trends downward*):
+- **Self-optimization loop** — maintenance cadence (commit/weekly/monthly/quarterly) + a signal→action table (when to UPDATE, REFACTOR, REBUILD, or RETIRE a doc) + a `/audit` agent that scores all 12 principles with measured evidence → a ranked optimization backlog
+
 ---
 
 ## Quick start (5 phút / 5 min)
@@ -54,7 +60,7 @@ And since **v2** (for when the project grows — pain point #4: *honor-system me
 3. Tạo `.claude/commands/fl.md` từ `templates/fl.command.md.template`
 4. Tạo `.claude/agents/context-router.md` từ `templates/context-router.agent.md.template`
 5. Cài hook versioned: `mkdir .githooks` → copy `templates/pre-commit.hook.template` vào `.githooks/pre-commit` → `git config core.hooksPath .githooks` → commit folder `.githooks` (sửa 3 biến CONFIG nếu không phải Supabase; verify: `sh .githooks/pre-commit --self-test`)
-6. Đọc `methodology/README.md` để hiểu 11 nguyên tắc
+6. Đọc `methodology/README.md` để hiểu 12 nguyên tắc
 
 ### EN
 1. Copy `templates/CLAUDE.md.template` → project root, rename to `CLAUDE.md`
@@ -62,7 +68,7 @@ And since **v2** (for when the project grows — pain point #4: *honor-system me
 3. Create `.claude/commands/fl.md` from `templates/fl.command.md.template`
 4. Create `.claude/agents/context-router.md` from `templates/context-router.agent.md.template`
 5. Install the versioned hook: `mkdir .githooks` → copy `templates/pre-commit.hook.template` to `.githooks/pre-commit` → `git config core.hooksPath .githooks` → commit `.githooks` (edit the 3 CONFIG vars if not Supabase; verify: `sh .githooks/pre-commit --self-test`)
-6. Read `methodology/README.md` to grasp the 11 principles
+6. Read `methodology/README.md` to grasp the 12 principles
 
 ---
 
@@ -72,7 +78,7 @@ And since **v2** (for when the project grows — pain point #4: *honor-system me
 ai-simple--skill-product-dev/
 ├── README.md                    # This file
 ├── SKILL.md                     # Claude Code skill manifest (auto-discoverable)
-├── methodology/                 # 11 principles, deep-dive
+├── methodology/                 # 12 principles, deep-dive
 │   ├── README.md                # Principles index
 │   ├── 01-hierarchical-context.md
 │   ├── 02-app-map-pattern.md
@@ -84,8 +90,11 @@ ai-simple--skill-product-dev/
 │   ├── 08-automated-enforcement.md      # v2 — hook chặn, lint, report drift
 │   ├── 09-generated-vs-authored-docs.md # v2 — máy sinh "cái gì", người viết "tại sao"
 │   ├── 10-cross-repo-contract.md        # v2 — schema chung = contract đánh version
-│   └── 11-ops-layer.md                  # v2.2 — runbook, state registry, routing sự cố
-└── templates/                   # Drop-in files, just edit placeholders
+│   ├── 11-ops-layer.md                  # v2.2 — runbook, state registry, routing sự cố
+│   └── 12-self-optimization.md          # v3.0 — nhịp bảo trì, tín hiệu→hành động, /audit
+└── templates/                   # Drop-in files. Quy ước placeholder: {{ĐIỀN_KHI_COPY}} = giá trị
+                                 # bạn điền lúc copy; <biến-runtime> = pattern thay đổi theo ngữ cảnh
+                                 # (vd src/<module>/) — giữ nguyên, không điền.
     ├── CLAUDE.md.template
     ├── app-map-README.md.template
     ├── app-map-doc.md.template
@@ -96,6 +105,9 @@ ai-simple--skill-product-dev/
     ├── doc-health-report.sh.template    # v2 — report tuần: drift %, stale docs, broken links, lint
     ├── runbook.md.template              # v2.2 — runbook per service chạy nền
     ├── state-registry.md.template       # v2.2 — registry canonical cho state files
+    ├── ops-schedules.md.template        # v3.0 — registry mọi cron/scheduled job
+    ├── ops-external-services.md.template# v3.0 — registry API ngoài (token, rate limit, khi chết)
+    ├── audit.command.md.template        # v3.0 — /audit: tự chấm 12 nguyên tắc → backlog tối ưu
     └── contract-doc.md.template         # v2 — cross-repo contract
 ```
 

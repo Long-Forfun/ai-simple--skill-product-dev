@@ -1,0 +1,22 @@
+# Ops — Schedules — {{PROJECT_NAME}}
+
+> Load khi: cần biết "cái gì tự chạy lúc nào, bằng cơ chế gì" — debug job không chạy, thêm/sửa lịch, hoặc audit.
+> Registry CANONICAL cho mọi thứ chạy theo lịch (nguyên tắc 11). Cron khai báo ở nơi khác mà không có ở đây = coi như không tồn tại.
+
+**Last updated**: {{YYYY-MM-DD}}
+
+---
+
+## Bảng lịch chạy
+
+| Job | Lịch (giờ địa phương) | Cơ chế | Lệnh thật | Runbook | Kiểm tra đã chạy |
+|---|---|---|---|---|---|
+| {{morning-batch}} | {{9:11 hằng ngày}} | {{Windows Task Scheduler / cron / GH Actions / Claude scheduled task}} | {{python main.py --batch morning}} | {{ops/runbook-x.md}} | {{tail logs/x.log \| grep <date>}} |
+| {{...}} | {{...}} | {{...}} | {{...}} | {{...}} | {{...}} |
+
+## Quy tắc
+
+1. **1 job = 1 dòng ở đây + 1 mục trong runbook tương ứng** — thêm/sửa lịch phải update bảng CÙNG commit
+2. **Cơ chế khai báo tường minh** — "chạy bằng gì" là câu đầu tiên khi debug; đừng để AI đoán giữa cron/scheduler/CI
+3. **Giờ ghi kèm timezone** nếu hệ có thành phần chạy UTC
+4. **Job tắt tạm thời** → ghi `(DISABLED <date> — lý do)` ngay trong bảng, đừng xóa dòng

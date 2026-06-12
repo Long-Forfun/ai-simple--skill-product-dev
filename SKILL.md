@@ -1,6 +1,6 @@
 ---
 name: ai-simple-product-dev
-description: Methodology for organizing software projects to be AI-agent-friendly. Use when bootstrapping a new project, retrofitting docs structure for AI pair-programming, onboarding an AI agent to an existing codebase, or when the user reports symptoms like "AI hallucinates", "context too long", "docs out of sync with code", "Claude/Cursor doesn't understand my project", "docs drift as the project grows", "schema change broke another repo", "AI asks me to confirm every little thing", "nobody knows how to restart the bot". Provides hierarchical context, app-map pattern (with domain-tree scaling), context routing, doc+test sync invariant, LOGIC vs REQUEST classification, risk-tiered pre-flight (auto-proceed on reversible work, single batched confirm only at points of no return), memory-as-feedback, automated enforcement hooks, generated-vs-authored docs split, cross-repo contracts, ops runbooks, plus ready-to-copy templates.
+description: Methodology for organizing software projects to be AI-agent-friendly. Use when bootstrapping a new project, retrofitting docs structure for AI pair-programming, onboarding an AI agent to an existing codebase, or when the user reports symptoms like "AI hallucinates", "context too long", "docs out of sync with code", "Claude/Cursor doesn't understand my project", "docs drift as the project grows", "schema change broke another repo", "AI asks me to confirm every little thing", "nobody knows how to restart the bot", "docs were good once but nobody maintains them", "what should we optimize next". Provides hierarchical context, app-map pattern (with domain-tree scaling), context routing, doc+test sync invariant, LOGIC vs REQUEST classification, risk-tiered pre-flight (auto-proceed on reversible work, single batched confirm only at points of no return), memory-as-feedback, automated enforcement hooks, generated-vs-authored docs split, cross-repo contracts, ops runbooks, and a self-optimization loop (maintenance cadence, signal-to-action table, quarterly /audit that scores all principles and emits a ranked optimization backlog), plus ready-to-copy templates.
 ---
 
 # AI-Simple Product Dev
@@ -11,11 +11,12 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 - User báo "AI hallucinate / context dài / doc lệch code" → diagnose + propose
 - Retrofit AI-friendly layer vào project hiện có
 - User hỏi "làm sao Claude/Cursor hiểu project nhanh"
-- Project phình to: root CLAUDE.md vượt budget, app-map > 20 file, nhiều repo chia sẻ schema → áp dụng lớp scale (08–11)
+- Project phình to: root CLAUDE.md vượt budget, app-map > 20 file, nhiều repo chia sẻ schema → áp dụng lớp scale & tự tối ưu (08–12)
 - Project có process chạy nền (cron/agent/pipeline) hoặc "không ai biết restart bot thế nào" → ops layer (11)
 - User phàn nàn "AI hỏi confirm lặt vặt / chậm vì phải duyệt từng bước" → re-calibrate risk tier (06 v3)
+- "Docs từng tốt giờ mục dần / lâu rồi không ai dọn / không biết nên tối ưu cái gì trước" → self-optimization loop + `/audit` (12)
 
-## 11 nguyên tắc cốt lõi
+## 12 nguyên tắc cốt lõi
 
 **Nền tảng (mọi project):**
 1. **Hierarchical Context** — root `CLAUDE.md` < 6000 tokens, point sang module-level `CLAUDE.md`
@@ -30,17 +31,18 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 8. **Automated Enforcement** — pre-commit hook chặn (migration↔doc sync, token budget, contract version), CI lint cảnh báo, report tuần đo drift. Invariant tự giác = invariant sẽ chết
 9. **Generated vs Authored Docs** — người viết "tại sao" (decisions, invariants, flows); máy sinh "cái gì" (`_generated/schema.md`, `routes.md`, content-stats) từ source of truth thật, regenerate trong hook/CI
 10. **Cross-Repo Contract** — mỗi schema/file/utility dùng chung giữa nhiều repo có 1 file `docs/contracts/<name>.contract.md` ở producer, đánh version, consumers tự đăng ký; root CLAUDE.md hai đầu có bảng SYNC; mọi repo checkout cạnh nhau dưới 1 root khai báo tường minh
-11. **Ops Layer** — project có process chạy nền (cron/agent/pipeline) phải có `docs/app-map/ops/`: runbook per service (start/stop, health, log, lỗi thường gặp, escalation), state registry, routing "sự cố → runbook trước code"; fix sự cố → update runbook cùng commit
+11. **Ops Layer** — project có process chạy nền (cron/agent/pipeline) phải có `docs/app-map/ops/`: runbook per service (start/stop, health, log, lỗi thường gặp, escalation), state registry, schedules + external-services registry, routing "sự cố → runbook trước code"; fix sự cố → update runbook cùng commit
+12. **Self-Optimization Loop** — hệ docs tự tiến hóa theo NHỊP (commit: hook / tuần: report --ci / tháng: promote buffer + root diet + consolidate memory / quý: `/audit`) và theo TÍN HIỆU (bảng tín hiệu→hành động: file >1500 dòng → tách; drift thấp 2 tuần → siết hook; doc 90 ngày không ai route → RETIRE; doc sai căn bản → REBUILD từ code, không vá). `/audit` agent tự chấm 12 nguyên tắc bằng số đo + semantic verify doc-vs-code → backlog tối ưu xếp hạng, ghi `_generated/audit-history.md` để theo dõi trend
 
 ## Workflow áp dụng
 
 ```
-1. Đọc methodology/README.md → grasp 11 principles
+1. Đọc methodology/README.md → grasp 12 principles
 2. Copy templates/ → project root, fill placeholders
 3. Cài pre-commit hook NGAY từ tuần đầu (retrofit muộn khó gấp 10 lần)
 4. Verify: session mới đọc CLAUDE.md có đủ ngữ cảnh để biết đọc gì tiếp?
 5. Bật Doc+Test sync từ commit ĐẦU TIÊN — đừng đợi sau
-6. Khi chạm trigger scale (root 6K tokens / app-map 20 file / multi-repo / process chạy nền) → áp 08–11
+6. Khi chạm trigger scale (root 6K tokens / app-map 20 file / multi-repo / process chạy nền / hệ chạy >3 tháng) → áp 08–12
 ```
 
 ## Tài liệu chi tiết
@@ -56,6 +58,7 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 - `methodology/09-generated-vs-authored-docs.md` — `_generated/` convention
 - `methodology/10-cross-repo-contract.md` — contract + bảng SYNC + path convention
 - `methodology/11-ops-layer.md` — runbook, state registry, incident routing
+- `methodology/12-self-optimization.md` — nhịp bảo trì, tín hiệu→hành động, update/refactor/rebuild/retire, `/audit`
 
 ## Templates
 
@@ -69,6 +72,9 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 - `templates/doc-health-report.sh.template` — report tuần: drift %, stale app-map, broken cross-ref, token budget, lint Load-khi/last-updated, _generated staleness
 - `templates/runbook.md.template` — runbook per service chạy nền (5 mục tối thiểu)
 - `templates/state-registry.md.template` — registry canonical cho state files (1 writer/state, atomic write)
+- `templates/ops-schedules.md.template` — registry mọi cron/scheduled job (cơ chế, lệnh, cách verify đã chạy)
+- `templates/ops-external-services.md.template` — registry API ngoài (auth, token ở đâu, rate limit, "khi nó chết thì sao")
+- `templates/audit.command.md.template` — slash `/audit`: tự chấm 12 nguyên tắc bằng số đo + semantic verify → backlog tối ưu
 - `templates/contract-doc.md.template` — cross-repo contract
 
 ## Anti-patterns

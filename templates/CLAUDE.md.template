@@ -110,6 +110,16 @@ Agent: `.claude/agents/context-router.md`. Slash: `.claude/commands/fl.md`.
 - Test → `docs/app-map/22-test-organization.md`
 - **Sự cố hệ thống chạy nền** ("X không chạy/sập") → `docs/app-map/ops/runbook-X.md` TRƯỚC TIÊN, rồi mới tới code (nguyên tắc 11)
 
+## Bảo trì định kỳ — self-optimization (nguyên tắc 12)
+| Nhịp | Việc | Ai |
+|---|---|---|
+| Mỗi commit | hook: sync + budget + contract | Máy (tự động) |
+| Tuần / mỗi PR | `doc-health-report --ci`: drift, stale, broken ref | Máy (tự động) |
+| Tháng | Promote `20-recent-features` → file riêng; root diet nếu ≥ 80% budget; consolidate memory; xử lý WARN tồn | AI session (user đọc 5') |
+| Quý | `/audit` → điểm 12 nguyên tắc + semantic verify + backlog tối ưu | AI agent (user duyệt backlog) |
+
+Tín hiệu bắn giữa kỳ (file > 1500 dòng, drift < ngưỡng 2 tuần, sự cố lặp lần 2, doc 90 ngày không ai route tới...) → tra bảng tín hiệu→hành động trong nguyên tắc 12, làm ngay đừng đợi lịch.
+
 ## Quick commands
 ```bash
 npm run dev

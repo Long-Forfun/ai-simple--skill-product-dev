@@ -1,7 +1,7 @@
-# Methodology — 11 nguyên tắc / 11 principles
+# Methodology — 12 nguyên tắc / 12 principles
 
-> 11 nguyên tắc cốt lõi. Đọc tuần tự, mỗi file 5–10 phút. Nguyên tắc 01–07 cho mọi project; 08–11 là lớp scale & vận hành (bắt buộc khi project/ecosystem phình to hoặc có process chạy nền).
-> *(EN: 11 core principles. 01–07 apply to every project; 08–11 are the scale & ops layer — mandatory as the project grows or runs background processes.)*
+> 12 nguyên tắc cốt lõi. Đọc tuần tự, mỗi file 5–10 phút. Nguyên tắc 01–07 cho mọi project; 08–11 là lớp scale & vận hành; 12 là vòng tự tối ưu — biến cả hệ thành sinh vật tự tiến hóa thay vì tượng đài mục dần.
+> *(EN: 12 core principles. 01–07 apply to every project; 08–11 are the scale & ops layer; 12 is the self-optimization loop that turns the whole system into an organism that evolves instead of a monument that rots.)*
 
 ---
 
@@ -20,6 +20,7 @@
 | 09 | [generated-vs-authored-docs.md](09-generated-vs-authored-docs.md) | **v2** — Người viết "tại sao", máy sinh "cái gì" |
 | 10 | [cross-repo-contract.md](10-cross-repo-contract.md) | **v2** — Schema dùng chung = contract đánh version |
 | 11 | [ops-layer.md](11-ops-layer.md) | **v2.2** — Runbook per service, state registry, routing sự cố |
+| 12 | [self-optimization.md](12-self-optimization.md) | **v3.0** — Nhịp bảo trì + bảng tín hiệu→hành động + `/audit` tự chấm → backlog |
 
 ---
 
@@ -48,7 +49,7 @@
 5. Khi user feedback lặp lại: persist vào memory (nguyên tắc 07)
 
 ### Project cũ (retrofit)
-1. Đọc 11 nguyên tắc, score project hiện tại từng cái
+1. Đọc 12 nguyên tắc, score project hiện tại từng cái
 2. Pick 2 cái yếu nhất → retrofit trước (thường 02 + 04)
 3. Đừng cố retrofit hết 1 lần — chia 5 PR, mỗi PR 1 nguyên tắc
 
@@ -62,6 +63,7 @@
 | Nhiều người/agent commit song song | Hook trên MỌI máy + CI lint (08) |
 | ≥ 1 process chạy nền (cron, agent, pipeline) | Domain `ops/` + runbook per service (11) |
 | User phàn nàn "phải confirm lặt vặt" | Re-calibrate tier theo 06 v3 — confirm chỉ cho RED |
+| Hệ chạy > 3 tháng chưa từng audit | `/audit` + bật nhịp tháng/quý (12) — detect không có heal thì điểm chỉ đi xuống |
 
 ---
 

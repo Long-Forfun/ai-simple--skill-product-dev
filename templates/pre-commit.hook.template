@@ -53,6 +53,26 @@ if echo "$CHANGED" | grep -qE "$MIGRATIONS_PATTERN"; then
   fi
 fi
 
+# ── 1b. Covers-sync — CỔNG GHI của nguyên tắc 12 v2 ─────────────────────
+# Code đổi trong vùng `covers:` của doc nào -> doc đó PHẢI được sửa hoặc bump
+# `last_verified:` trong CÙNG commit (lỡ cửa sổ commit là doc sai trung bình nhiều năm —
+# EMSE 2024). Bump last_verified = lời cam kết "tôi đã đối chiếu, nội dung vẫn đúng".
+for doc in $(git ls-files 'docs/app-map/*.md' 'docs/app-map/**/*.md' 2>/dev/null | grep -v '_generated/' | sort -u); do
+  [ -f "$doc" ] || continue
+  CLINE=$(head -10 "$doc" | grep -i '^covers:' | head -1)
+  [ -n "$CLINE" ] || continue
+  HIT=0
+  for p in $(echo "$CLINE" | sed 's/^[Cc]overs:[[:space:]]*//' | tr ',' '\n' | sed 's/^ *//; s/ *$//'); do
+    [ -n "$p" ] || continue
+    if echo "$CHANGED" | grep -q "^$p"; then HIT=1; break; fi
+  done
+  if [ "$HIT" -eq 1 ] && ! echo "$CHANGED" | grep -qx "$doc"; then
+    echo "BLOCK: code trong vung covers cua '$doc' thay doi nhung doc khong duoc sua/re-verify."
+    echo "  -> Sua noi dung, hoac da doi chieu thay van dung thi bump 'last_verified:' trong $doc, roi commit lai."
+    FAIL=1
+  fi
+done
+
 # ── 2. Root CLAUDE.md token budget ─────────────────────────────────────
 # Ratchet: chỉ check khi CLAUDE.md nằm trong commit — vi phạm tồn đọng được "ân hạn"
 # tới lần sửa kế tiếp (tránh hook fail mọi commit khi retrofit vào repo cũ).

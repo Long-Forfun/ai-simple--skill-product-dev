@@ -20,7 +20,7 @@
 | 09 | [generated-vs-authored-docs.md](09-generated-vs-authored-docs.md) | **v2** — Người viết "tại sao", máy sinh "cái gì" |
 | 10 | [cross-repo-contract.md](10-cross-repo-contract.md) | **v2** — Schema dùng chung = contract đánh version |
 | 11 | [ops-layer.md](11-ops-layer.md) | **v2.2** — Runbook per service, state registry, routing sự cố |
-| 12 | [self-optimization.md](12-self-optimization.md) | **v3.0** — Nhịp bảo trì + bảng tín hiệu→hành động + `/audit` tự chấm → backlog |
+| 12 | [self-optimization.md](12-self-optimization.md) | **v2 (4.0)** — Coupling map `covers`/`last_verified` + 2 cổng (ghi: hook covers-sync; đọc: verify-on-use) + doc-lag/hotspot + `/audit` neo metric |
 
 ---
 

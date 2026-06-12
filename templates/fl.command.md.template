@@ -19,7 +19,9 @@ Sau khi agent trả output → append 1 dòng vào `docs/.fl-routing-log` (tạo
 `<YYYY-MM-DD> | <domain> | <danh sách file .md được route, cách nhau dấu phẩy>`
 — log này cho audit quý biết doc nào "lạnh" (90 ngày không được route): để check router thiếu keyword và ưu tiên verify, KHÔNG phải để xóa (nguyên tắc 12 — doc sống theo code, không theo lượt đọc). Log COMMIT vào repo (append-only, như `docs/audit-history.md`) — gitignore nó thì audit trên fresh clone bị mù.
 
-Rồi đọc các file trong list và:
+Rồi đọc các file trong list. **Cổng đọc (nguyên tắc 12 v2)**: file nào router gắn ⚠️ SUSPECT → TRƯỚC KHI TIN bất kỳ khẳng định nào trong đó, đối chiếu các khẳng định sắp dùng (tên hàm, luồng, schema, rule) với code thật; khớp thì bump dòng `last_verified:` của doc ngay trong task (commit cùng thay đổi); lệch thì sửa doc trước rồi mới code. File ☠️ ORPHANED → không dùng, báo trong Assumptions để đi flow RETIRE. Doc sai không bao giờ được phép lọt vào suy luận mà chưa qua verify.
+
+Sau đó:
 - **GREEN**: code luôn.
 - **YELLOW**: code luôn theo phương án an toàn (reversible bắt buộc), ghi mục `## Assumptions` trong báo cáo cuối — KHÔNG hỏi trước.
 - **RED**: hỏi đúng 1 câu confirm gộp của router (kèm phương án khuyến nghị), đợi trả lời rồi mới code phần RED — phần còn lại của task vẫn tự làm.

@@ -1,8 +1,11 @@
 # {{NN}} — <Topic Title>
 
-> **Mục đích / Purpose**: 1-2 câu mô tả file này.
+> Load khi: <e.g. designing/fixing X feature, or integrating Y with Z>
+covers: {{src/feature-x, supabase/migrations — path prefix phẩy ngăn cách; doc thuần decision/vision thì XÓA 3 dòng metadata này}}
+last_verified: {{YYYY-MM-DD — ngày đối chiếu nội dung với code thật, KHÔNG phải ngày sửa doc}}
+ttl_days: {{90 cho flow/quickstart hay đổi | 180 cho domain spec | 365 cho architecture}}
 
-**Load khi / Load when**: <e.g. designing/fixing X feature, or integrating Y with Z>
+> **Mục đích / Purpose**: 1-2 câu mô tả file này.
 
 ---
 

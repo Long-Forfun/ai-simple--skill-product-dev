@@ -110,15 +110,16 @@ Agent: `.claude/agents/context-router.md`. Slash: `.claude/commands/fl.md`.
 - Test → `docs/app-map/22-test-organization.md`
 - **Sự cố hệ thống chạy nền** ("X không chạy/sập") → `docs/app-map/ops/runbook-X.md` TRƯỚC TIÊN, rồi mới tới code (nguyên tắc 11)
 
-## Bảo trì định kỳ — self-optimization (nguyên tắc 12)
-| Nhịp | Việc | Ai |
+## Bảo trì — self-optimization, event-first (nguyên tắc 12 v2)
+| Trigger | Việc | Ai |
 |---|---|---|
-| Mỗi commit | hook: sync + budget + contract | Máy (tự động) |
-| Tuần / mỗi PR | `doc-health-report --ci`: drift, stale, broken ref | Máy (tự động) |
-| Tháng | Promote `20-recent-features` → file riêng; root diet nếu ≥ 80% budget; consolidate memory; xử lý WARN tồn | AI session (user đọc 5') |
-| Quý | `/audit` → điểm 12 nguyên tắc + semantic verify + backlog tối ưu | AI agent (user duyệt backlog) |
+| Mỗi commit | hook: covers-sync (code đổi → doc cùng commit), budget, contract, encoding | Máy (tự động) |
+| Mỗi lần dùng doc | Cổng đọc: doc ⚠️ SUSPECT → verify với code trước khi tin → bump `last_verified` | AI trong task |
+| Mỗi PR / tuần | `doc-health-report --status` + `--ci`: doc-lag, broken ref, _generated stale | Máy (tự động) |
+| Tháng | Promote `20-recent-features` → file riêng; root diet nếu ≥ 80% budget; consolidate memory | AI session (user đọc 5') |
+| Quý | `/audit`: trend, verify doc không-covers, fire-drill runbook, backlog theo hotspot | AI (user duyệt backlog) |
 
-Tín hiệu bắn giữa kỳ (file > 1500 dòng, drift < ngưỡng 2 tuần, sự cố lặp lần 2, doc 90 ngày không ai route tới...) → tra bảng tín hiệu→hành động trong nguyên tắc 12, làm ngay đừng đợi lịch.
+Tín hiệu bắn giữa kỳ (file > 1500 dòng, doc mồ côi — path trong covers biến mất, sự cố lặp lần 2, agent làm theo doc mà fail...) → tra bảng tín hiệu→hành động trong nguyên tắc 12. Doc "lạnh" mà chủ thể còn trong code thì KHÔNG xóa — chỉ verify.
 
 ## Quick commands
 ```bash

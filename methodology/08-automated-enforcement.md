@@ -59,10 +59,12 @@ Nguyên tắc gốc định nghĩa 4 metric (onboard time, drift %, hallucinatio
 
 | Metric | Cách thu tự động |
 |---|---|
-| Doc drift % | Script đếm: trong 20 commit gần nhất, % commit sửa `src/` có kèm sửa `docs/` |
-| Doc staleness | So `git log -1 --format=%ci` của app-map file vs code cùng domain |
+| **Doc-lag** (v2 — chính) | Report đếm doc SUSPECT: code trong `covers` đổi sau `last_verified` + số ngày lệch (nguyên tắc 12 v2) |
+| Escaped-drift | Lỗi doc bị cổng đọc/audit bắt mà cổng ghi lẽ ra phải chặn → mỗi case = 1 pattern mới cho hook |
 | Hallucination rate | Nếu có bot triage (Telegram/issue bot): đếm report gắn tag "AI chẩn đoán sai do doc cũ" |
 | Token budget trend | Hook ghi size CLAUDE.md vào log mỗi commit → vẽ trend |
+
+> v1 dùng "drift % = % commit sửa code có kèm doc" — đã bỏ: proxy đo hoạt động chứ không đo độ đúng, và gameable (Goodhart). Xem nguyên tắc 12 v2 §Đo lường.
 
 ---
 

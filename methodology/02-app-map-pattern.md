@@ -109,6 +109,8 @@ Xem `templates/app-map-doc.md.template` cho khung chuẩn.
 4. Major change → bump v2/v3, append history section ở cuối
 ```
 
+→ Phân biệt 2 số phận khác nhau (cross-ref nguyên tắc 12): doc bị **thay thế bởi kế nhiệm** → giữ file + stub DEPRECATED như bước 3 (link cũ không gãy); doc **mồ côi** (chủ thể bị xóa khỏi code, không có kế nhiệm) → flow RETIRE của 12: DEPRECATED + giữ 1 tháng + xóa.
+
 ---
 
 ## Checklist áp dụng / Adoption checklist

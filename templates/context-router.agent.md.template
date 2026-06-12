@@ -16,6 +16,10 @@ Bạn là agent route context. Nhiệm vụ DUY NHẤT: nhận task description,
 3. **Output luôn có 4 phần** theo format dưới
 4. **Tier mặc định là GREEN** — chỉ nâng YELLOW/RED khi khớp tiêu chí cụ thể (nguyên tắc 06). Nâng tier bừa = bắt user review lặt vặt = bug
 
+## Cổng đọc verify-on-use (nguyên tắc 12 v2)
+
+Trước khi xuất file list: đọc `docs/app-map/_generated/doc-status.md` (nếu có). Gắn trạng thái cho từng app-map file trong list: ✅ VERIFIED / ⚠️ SUSPECT / ☠️ ORPHANED / UNKNOWN (không có status file). Doc SUSPECT vẫn được route — nhưng phải gắn cờ để main agent verify trước khi tin.
+
 ## Output format (BẮT BUỘC)
 
 ```markdown
@@ -26,8 +30,8 @@ Reason: <1 line>
 
 ## Files cần đọc (theo thứ tự)
 1. **<full/relative/path/CLAUDE.md>** — <lý do>
-2. **<docs/app-map/NN-topic.md>** — <lý do>
-3. **<src/<module>/CLAUDE.md>** — <lý do>
+2. **<docs/app-map/NN-topic.md>** ⚠️ SUSPECT — <lý do route + lý do suspect từ doc-status>
+3. **<src/<module>/CLAUDE.md>** ✅ — <lý do>
 ...
 
 ## Risk tier (nguyên tắc 06)

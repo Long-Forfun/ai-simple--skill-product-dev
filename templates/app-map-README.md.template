@@ -27,21 +27,25 @@
 
 ## Index
 
+> Khung gợi ý — các file CHƯA tồn tại lúc mới init. Khi tạo file nào, đổi tên thường thành
+> link markdown (invariant 3). Broken-ref check chỉ tính LINK, không tính text thường —
+> nên index khung không làm fail CI oan ở repo mới.
+
 | # | File | Mục đích |
 |---|---|---|
-| 01 | [pages-and-navigation.md](01-pages-and-navigation.md) | Routes + nav structure |
-| 02 | [dialogs-and-forms.md](02-dialogs-and-forms.md) | Modal/Sheet/Form catalog |
-| 03 | [database-and-automation.md](03-database-and-automation.md) | Tables, RLS, triggers, cron |
-| 04 | [edge-functions.md](04-edge-functions.md) | Serverless function registry |
-| 05 | [permissions-and-gates.md](05-permissions-and-gates.md) | Role matrix, journey gates |
-| 06 | [user-flows.md](06-user-flows.md) | End-to-end flows |
-| 07 | [auto-vs-manual.md](07-auto-vs-manual.md) | Auto-trigger vs user action |
-| 08 | [app-structure-real.md](08-app-structure-real.md) | Actual folder layout |
-| 09 | [empty-and-inline-states.md](09-empty-and-inline-states.md) | Empty states, inline hints |
-| 10 | [design-system.md](10-design-system.md) | Colors, typo, copy tone |
-| 20 | [recent-features.md](20-recent-features.md) | Buffer cho feature mới chưa stable |
-| 21 | [feature-workflow.md](21-feature-workflow.md) | Pre-flight + plan template |
-| 22 | [test-organization.md](22-test-organization.md) | Test structure + naming |
+| 01 | 01-pages-and-navigation.md | Routes + nav structure |
+| 02 | 02-dialogs-and-forms.md | Modal/Sheet/Form catalog |
+| 03 | 03-database-and-automation.md | Tables, RLS, triggers, cron |
+| 04 | 04-edge-functions.md | Serverless function registry |
+| 05 | 05-permissions-and-gates.md | Role matrix, journey gates |
+| 06 | 06-user-flows.md | End-to-end flows |
+| 07 | 07-auto-vs-manual.md | Auto-trigger vs user action |
+| 08 | 08-app-structure-real.md | Actual folder layout |
+| 09 | 09-empty-and-inline-states.md | Empty states, inline hints |
+| 10 | 10-design-system.md | Colors, typo, copy tone |
+| 20 | 20-recent-features.md | Buffer cho feature mới chưa stable |
+| 21 | 21-feature-workflow.md | Pre-flight + plan template |
+| 22 | 22-test-organization.md | Test structure + naming |
 
 ---
 
@@ -49,7 +53,7 @@
 
 1. **Mỗi file 1 chủ đề canonical** — không trộn
 2. **Bắt đầu bằng "Load khi"** — 1 dòng nói khi nào AI nên load
-3. **Cross-ref dùng full relative path** — `[03-database](03-database.md)`
+3. **Cross-ref dùng full relative path** — vd tự tham chiếu: `[README](README.md)` (ví dụ dùng file có thật để broken-ref check không bắt oan)
 4. **Last-updated date** ở cuối file
 5. **Major change**: bump v2/v3, append history section thay vì silent overwrite
 

@@ -61,7 +61,23 @@ This methodology solves all 3 with:
 
 ---
 
-## Quick start (5 phút / 5 min)
+## Quick start
+
+### Cách 1 — CLI (30 giây, khuyến nghị / recommended)
+
+```bash
+npx ai-simple init                  # cài hook + doc-health + templates + workflow, set hooksPath, chạy self-test
+npx ai-simple init --stack prisma   # default: supabase; còn có: custom
+npx ai-simple doctor                # khám setup: version drift, self-tests, budget, covers coverage
+npx ai-simple update                # nâng hook/script lên bản mới, GIỮ NGUYÊN config (backup .bak)
+npx ai-simple doc-health --ci       # gate fail PR; doc-status: regenerate trạng thái doc
+```
+
+Sau `init`, hệ chạy theo **sự kiện** — không có lệnh nào phải nhớ: commit → hook chặn sai;
+PR → CI fail nếu doc-lag; AI đọc doc → cổng đọc bắt verify. Phần "não" (`/fl`, `/audit`,
+verify-on-use) dùng qua Claude Code skill — CLI chỉ đóng gói phần máy chạy-không-cần-AI.
+
+### Cách 2 — copy tay (5 phút / 5 min)
 
 ### VI
 1. Copy `templates/CLAUDE.md.template` → root project, đổi thành `CLAUDE.md`

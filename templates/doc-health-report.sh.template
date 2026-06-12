@@ -10,6 +10,9 @@
 #   Windows (scheduled task khởi động ở System32 -> PHẢI cd vào repo trước):
 #     schtasks /create /tn "doc-health" /sc weekly /d MON /st 08:00 ^
 #       /tr "\"C:\Program Files\Git\bin\sh.exe\" -c \"cd /c/path/repo && sh scripts/doc-health-report.sh\""
+# Yêu cầu: git >= 1.9 (pathspec ':(exclude)'), GNU date (macOS: brew install coreutils).
+# Chủ sở hữu tín hiệu dead-symbol: --ci (fail PR) + full --status hằng tuần (đặt marker);
+# hook per-commit dùng --fast nên KHÔNG bắt dead-symbol — by design, xem nguyên tắc 12.
 #   GitHub Actions (.github/workflows/doc-health.yml — fetch-depth: 0 bắt buộc cho timestamp):
 #     on: { schedule: [ { cron: "0 1 * * 1" } ], pull_request: {} }
 #     jobs: { report: { runs-on: ubuntu-latest, steps: [
@@ -115,6 +118,7 @@ update_marker() {
 
 # ── chế độ --self-test: fixture tổng hợp trong temp repo, bắt regression lớp Bug A/B ──
 if [ "$1" = "--self-test" ]; then
+  SELF="$0"; case "$SELF" in /*) ;; *) SELF="$(pwd)/$SELF";; esac
   T=$(mktemp -d) && OLDPWD_ST=$(pwd) && cd "$T" || exit 1
   git init -q . && git config user.email t@t.t && git config user.name t
   mkdir -p src/a src/b docs/app-map
@@ -148,6 +152,17 @@ if [ "$1" = "--self-test" ]; then
   sed -i 's/calcX/deadFn/' docs/app-map/01-t.md && git add -A && git commit -qm "re-verify(01-t): doi ref"
   ST=$(doc_state docs/app-map/01-t.md 2>/dev/null)
   echo "$ST" | grep -q "symbol 'deadFn()'" && echo "PASS: symbol chet (toan repo) -> SUSPECT" || { echo "FAIL: symbol chet khong bi bat ($ST)"; RC=1; }
+  # Symbol chết phải làm --ci FAIL (detector có răng — vòng 10)
+  sh "$SELF" --ci >/dev/null 2>&1
+  [ $? -eq 1 ] && echo "PASS: dead symbol -> --ci exit 1" || { echo "FAIL: --ci khong fail voi symbol chet"; RC=1; }
+  # --fast phải skip symbol scan (hook per-commit dùng — vòng 10)
+  FAST=1; STF=$(doc_state docs/app-map/01-t.md 2>/dev/null | cut -d'|' -f1); FAST=0
+  [ "$STF" = "VERIFIED" ] && echo "PASS: --fast skip symbol scan" || { echo "FAIL: --fast van scan symbol ('$STF')"; RC=1; }
+  # Contract test matcher (CÙNG bảng với hook --self-test — hợp đồng chung của matcher 2 nơi)
+  M=$(echo "src/lib-utils/a.ts" | while read -r c; do case "$c" in "src/lib"|"src/lib"/*) echo 1;; esac; done)
+  [ -z "$M" ] && echo "PASS: matcher contract — sibling KHONG khop" || { echo "FAIL: matcher overmatch sibling"; RC=1; }
+  M=$(echo "src/lib/x.ts" | while read -r c; do case "$c" in "src/lib"|"src/lib"/*) echo 1;; esac; done)
+  [ -n "$M" ] && echo "PASS: matcher contract — child khop" || { echo "FAIL: matcher miss child"; RC=1; }
   git rm -rq src/a && git commit -qm c4
   ST=$(doc_state docs/app-map/01-t.md 2>/dev/null | cut -d'|' -f1)
   [ "$ST" = "ORPHANED" ] && echo "PASS: covers path xoa -> ORPHANED" || { echo "FAIL: mong ORPHANED, ra '$ST'"; RC=1; }
@@ -213,6 +228,8 @@ for doc in $DOCS; do
 "
       [ "$ST" = "ORPHANED" ] && CI_FAIL=1
       [ "$LAG" -gt "$DOC_LAG_MAX_DAYS" ] && CI_FAIL=1
+      # Symbol chết là sai NGAY BÂY GIỜ (không phải lag) -> CI fail luôn, không đợi 7 ngày
+      echo "$DS" | grep -q "symbol '" && CI_FAIL=1
       ;;
   esac
 done

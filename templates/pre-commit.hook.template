@@ -38,6 +38,29 @@ if [ "$1" = "--self-test" ]; then
     RC=1
   fi
   echo "  BUDGET = $CLAUDE_MD_CHAR_BUDGET chars"
+  # Contract test matcher (CÙNG bảng với doc-health-report self-test — matcher tồn tại
+  # ở 2 file, bảng này là hợp đồng chung, nguyên tắc 10 áp cho nội bộ hệ):
+  M=$(echo "src/lib-utils/a.ts" | while read -r c; do case "$c" in "src/lib"|"src/lib"/*) echo 1;; esac; done)
+  [ -z "$M" ] && echo "PASS: matcher contract — sibling (src/lib-utils) KHONG khop src/lib" || { echo "FAIL: matcher overmatch sibling"; RC=1; }
+  M=$(echo "src/lib/x.ts" | while read -r c; do case "$c" in "src/lib"|"src/lib"/*) echo 1;; esac; done)
+  [ -n "$M" ] && echo "PASS: matcher contract — child (src/lib/x) khop" || { echo "FAIL: matcher miss child"; RC=1; }
+  # Fixture gate: warn — chạy flow thật trong temp repo, WARN nhưng KHÔNG chặn
+  HOOK_SELF="$0"; case "$HOOK_SELF" in /*) ;; *) HOOK_SELF="$(pwd)/$HOOK_SELF";; esac
+  TW=$(mktemp -d); OPW=$(pwd)
+  cd "$TW" && git init -q . && git config user.email t@t.t && git config user.name t
+  mkdir -p .githooks src/w docs/app-map
+  cp "$HOOK_SELF" .githooks/pre-commit && git config core.hooksPath .githooks
+  echo "a" > src/w/a.ts
+  printf '# w\n> Load khi: t\ncovers: src/w\ngate: warn\nlast_verified: 2026-01-01\nttl_days: 90\n' > docs/app-map/01-w.md
+  git add -A && git commit -qm setup >/dev/null 2>&1
+  echo "b" >> src/w/a.ts && git add src/w/a.ts
+  OUTW=$(git commit -m warntest 2>&1); RCW=$?
+  if [ "$RCW" -eq 0 ] && echo "$OUTW" | grep -q "WARN: code trong vung covers"; then
+    echo "PASS: gate: warn -> chi WARN, khong chan commit"
+  else
+    echo "FAIL: gate warn khong dung (exit=$RCW)"; RC=1
+  fi
+  cd "$OPW" && rm -rf "$TW"
   exit $RC
 fi
 

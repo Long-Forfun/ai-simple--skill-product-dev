@@ -1,6 +1,6 @@
 # 08 — Automated Enforcement
 
-> Invariant sống bằng kỷ luật tay sẽ chết khi project phình to. Biến quy tắc thành cơ chế: pre-commit hook chặn, CI lint cảnh báo, report tuần đo drift.
+> Invariant sống bằng kỷ luật tay sẽ chết khi project phình to. Biến quy tắc thành cơ chế: pre-commit hook chặn, CI lint cảnh báo, report đo doc-lag.
 > *(EN: Discipline-based invariants die as the project grows. Turn rules into mechanisms: pre-commit hooks block, CI lints warn, weekly reports measure drift.)*
 
 ---
@@ -35,7 +35,7 @@ TẦNG 2 — CI lint (WARN)
 
 TẦNG 3 — report định kỳ (MEASURE)
 ├── Doc stale: app-map last-updated lệch > 30 ngày so với code cùng domain
-├── Drift %: sample 20 commit gần nhất, đếm % có doc update đi kèm
+├── Doc-lag: doc SUSPECT (code trong covers đổi sau last_verified) + symbol chết — xem 12 v2
 └── Token budget trend: size CLAUDE.md qua thời gian
 ```
 
@@ -55,7 +55,7 @@ Template hook sẵn dùng: `templates/pre-commit.hook.template`
 
 ## Đo lường tự động / Automated measurement
 
-Nguyên tắc gốc định nghĩa 4 metric (onboard time, drift %, hallucination rate, wrong-commit rate) nhưng không nói cách thu thập. Cách thu:
+Nguyên tắc gốc định nghĩa 4 metric (onboard time, doc-lag, hallucination rate, wrong-commit rate) nhưng không nói cách thu thập. Cách thu:
 
 | Metric | Cách thu tự động |
 |---|---|

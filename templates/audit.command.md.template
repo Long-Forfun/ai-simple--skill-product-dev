@@ -14,7 +14,7 @@ Với mỗi nguyên tắc, chấm 0–10 **neo vào sub-metric deterministic** (
 | 01 | Hierarchical context | `wc -c CLAUDE.md` vs budget 24000; đếm module > 5 file thiếu CLAUDE.md |
 | 02 | App-map | đếm file app-map (> 20 → cần domain hóa?); file > 1500 dòng; thiếu "Load khi"/last-updated |
 | 03 | Context routing | `.claude/commands` + `agents` tồn tại; keyword map còn khớp domain thật? |
-| 04 | Doc+Test sync | doc-lag từ `doc-health-report` (số doc SUSPECT + max lag ngày); escaped-drift: lỗi doc cổng đọc bắt được mà hook không chặn |
+| 04 | Doc+Test sync | doc-lag từ `doc-health-report` (số doc SUSPECT + max lag ngày); escaped-drift: đếm dòng mới trong `docs/.escaped-drift.log` kỳ này — mỗi dòng phải đã thành pattern hook; spot-check 3 commit `re-verify(...)` gần nhất: message có ghi claims thật không (bump không claims = red flag rubber-stamp) |
 | 05 | LOGIC vs REQUEST | rule có trong CLAUDE.md/memory không |
 | 06 | Risk tiers | CLAUDE.md có bảng tier chưa; còn rule "confirm mọi thứ" sót lại không |
 | 07 | Memory | memory files có entry nào stale/sai so với code hiện tại |
@@ -23,6 +23,15 @@ Với mỗi nguyên tắc, chấm 0–10 **neo vào sub-metric deterministic** (
 | 10 | Contracts | mọi schema chia sẻ liên repo có contract? consumers list còn đúng? |
 | 11 | Ops | mọi process chạy nền có runbook? fire-drill: CHỈ chạy lệnh trong mục "Health check" của runbook, BỎ QUA mọi lệnh có side effect (ghi state, mutate, gọi API tốn quota) — ghi kết quả từng lệnh |
 | 12 | Self-optimization | `docs/audit-history.md` có entry kỳ trước? backlog kỳ trước đã xử lý chưa? `docs/.fl-routing-log` đang được append? Doc MỒ CÔI (tham chiếu entity đã xóa khỏi code → RETIRE)? Doc lạnh 90 ngày mà chủ thể còn sống → check router keyword map thiếu gì + đưa vào danh sách verify, KHÔNG đề xuất xóa |
+
+### Rubric neo điểm (điểm = TÍNH từ metric, LLM chỉ điều chỉnh ±1 kèm lý do ghi rõ)
+
+| Metric trạng thái | Điểm nguyên tắc liên quan |
+|---|---|
+| Xanh hoàn toàn (vd doc-lag 0, hook self-test PASS, budget < 80%) | 9–10 |
+| Có vấn đề nhỏ trong ngưỡng (lag ≤ 7d, 1-2 lint WARN) | 6–8 |
+| Vượt ngưỡng (lag > 7d, ORPHANED > 0, budget vượt, self-test FAIL) | 3–5 |
+| Cơ chế không tồn tại / không đo được dù phải có | 0–2 |
 
 ## Bước 2 — Semantic verify (doc nói có khớp code không)
 

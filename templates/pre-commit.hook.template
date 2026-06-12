@@ -55,21 +55,33 @@ fi
 
 # ── 1b. Covers-sync — CỔNG GHI của nguyên tắc 12 v2 ─────────────────────
 # Code đổi trong vùng `covers:` của doc nào -> doc đó PHẢI được sửa hoặc bump
-# `last_verified:` trong CÙNG commit (lỡ cửa sổ commit là doc sai trung bình nhiều năm —
-# EMSE 2024). Bump last_verified = lời cam kết "tôi đã đối chiếu, nội dung vẫn đúng".
+# `last_verified:` trong CÙNG commit. Bump = cam kết "tôi đã đối chiếu, nội dung vẫn đúng"
+# — commit message bump phải ghi re-verify(<doc>): <claims đã check> để audit spot-check được.
+# SEMANTICS covers (thống nhất với doc-health-report): mỗi entry là FILE hoặc DIR CÓ THẬT;
+# match = đúng path đó hoặc mọi thứ bên dưới nó ($p hoặc $p/*) — anchored, không phải prefix
+# chuỗi (src/lib KHÔNG khớp src/lib-utils). Tuỳ chọn frontmatter `gate: warn` để hạ xuống
+# cảnh báo cho vùng code churn cao (mặc định: block).
 for doc in $(git ls-files 'docs/app-map/*.md' 'docs/app-map/**/*.md' 2>/dev/null | grep -v '_generated/' | sort -u); do
   [ -f "$doc" ] || continue
   CLINE=$(head -10 "$doc" | grep -i '^covers:' | head -1)
   [ -n "$CLINE" ] || continue
+  GATE=$(head -10 "$doc" | grep -i '^gate:' | head -1 | sed 's/^[^:]*:[[:space:]]*//' | tr -d ' ')
   HIT=0
   for p in $(echo "$CLINE" | sed 's/^[Cc]overs:[[:space:]]*//' | tr ',' '\n' | sed 's/^ *//; s/ *$//'); do
     [ -n "$p" ] || continue
-    if echo "$CHANGED" | grep -q "^$p"; then HIT=1; break; fi
+    H=$(echo "$CHANGED" | while read -r c; do case "$c" in "$p"|"$p"/*) echo 1; break;; esac; done)
+    [ -n "$H" ] && { HIT=1; break; }
   done
   if [ "$HIT" -eq 1 ] && ! echo "$CHANGED" | grep -qx "$doc"; then
-    echo "BLOCK: code trong vung covers cua '$doc' thay doi nhung doc khong duoc sua/re-verify."
-    echo "  -> Sua noi dung, hoac da doi chieu thay van dung thi bump 'last_verified:' trong $doc, roi commit lai."
-    FAIL=1
+    if [ "$GATE" = "warn" ]; then
+      echo "WARN: code trong vung covers cua '$doc' thay doi, doc chua duoc sua/re-verify (gate: warn)."
+    else
+      echo "BLOCK: code trong vung covers cua '$doc' thay doi nhung doc khong duoc sua/re-verify."
+      echo "  -> Sua noi dung; hoac da doi chieu thay van dung thi: bump 'last_verified:' + them dong"
+      echo "     <!-- re-verified: <date time> - <claims da check> --> (luon tao thay doi staged, ke ca re-verify cung ngay)"
+      echo "     va commit msg: re-verify($doc): <claims>. Roi commit lai."
+      FAIL=1
+    fi
   fi
 done
 
@@ -130,6 +142,14 @@ for f in $(echo "$CHANGED" | grep -E 'docs/app-map/.*\.md$' | grep -v '_generate
     echo "WARN: $f thieu dong 'Load khi/Load when' o dau file (nguyen tac 02)."
   fi
 done
+
+# ── 5. Regenerate doc-status (cổng đọc luôn fresh — meta-rot guard) ─────
+# doc-status.md phải fresh theo COMMIT chứ không theo tuần; marker DOC-STATUS trong doc
+# được --status quản lý (xem report). Chỉ stage doc-status.md — KHÔNG auto-stage doc khác.
+if [ "$FAIL" -eq 0 ] && [ -f scripts/doc-health-report.sh ]; then
+  sh scripts/doc-health-report.sh --status >/dev/null 2>&1 || true
+  [ -f docs/app-map/_generated/doc-status.md ] && git add docs/app-map/_generated/doc-status.md 2>/dev/null
+fi
 
 [ "$FAIL" -eq 1 ] && exit 1
 exit 0

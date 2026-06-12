@@ -1,6 +1,9 @@
 # Ops — External Services — {{PROJECT_NAME}}
 
 > Load khi: lỗi liên quan API ngoài (token hết hạn, rate limit, webhook không nhận), thêm service mới, hoặc audit phụ thuộc.
+covers: {{client code goi API ngoai, vd executors, lib/clients}}
+last_verified: {{YYYY-MM-DD}}
+ttl_days: 180
 > Registry CANONICAL cho mọi service bên ngoài hệ (nguyên tắc 11).
 
 **Last updated**: {{YYYY-MM-DD}}

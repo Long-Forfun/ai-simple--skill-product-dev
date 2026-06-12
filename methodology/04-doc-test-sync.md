@@ -76,7 +76,7 @@ Phải note rõ trong commit message: `style(ui): đổi padding card — skip t
 
 > **v2 — 2026-06-11**: enforcement chi tiết chuyển sang [08-automated-enforcement.md](08-automated-enforcement.md). Tóm tắt phân tầng:
 
-1. **Pre-commit hook** (`templates/pre-commit.hook.template`): **BLOCK** cho invariant cốt tử (migration đổi mà doc database không đổi — hoặc không regenerate `_generated/schema.md`, xem nguyên tắc 09); **WARN** cho `src/` đổi mà `docs/` không đổi (không block, vì đôi khi đúng là pure UI tweak)
+1. **Pre-commit hook** (`templates/pre-commit.hook.template`): **BLOCK** cho invariant cốt tử — (a) migration đổi mà doc database không đổi (hoặc không regenerate `_generated/schema.md`, nguyên tắc 09); (b) **covers-sync** (nguyên tắc 12 v2): code đổi trong vùng `covers:` của doc nào thì doc đó phải được sửa hoặc bump `last_verified:` cùng commit — đây là phiên bản máy-enforce của chính invariant này. Code ngoài mọi vùng covers không bị chặn (pure UI tweak tự do)
 2. **Pull request template**: checklist 6 ô trên, force tick
 3. **AI agent rule**: rule trong `CLAUDE.md` — "Trước khi say done, verify checklist 6 ô"
 4. **Code reviewer**: reject PR thiếu doc/test, không exception

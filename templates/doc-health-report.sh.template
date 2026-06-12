@@ -23,34 +23,54 @@ CLAUDE_MD_CHAR_BUDGET=${CLAUDE_MD_CHAR_BUDGET:-24000}
 
 NOW=$(date +%s)
 
-# Đọc frontmatter 1 doc -> in "covers|last_verified_epoch|ttl" (rỗng nếu thiếu covers)
+# Đọc frontmatter 1 doc -> in 1 DÒNG "paths_phẩy_ngăn|last_verified_epoch|ttl"
+# (paths giữ dạng phẩy-ngăn trên 1 dòng — KHÔNG newline, vì cut xử lý theo dòng;
+#  bug đa-covers vòng review 8 sinh ra từ đúng chỗ này)
 read_meta() {
   CLINE=$(head -10 "$1" | grep -i '^covers:' | head -1)
   [ -n "$CLINE" ] || { echo ""; return; }
   LV=$(head -10 "$1" | grep -i '^last_verified:' | head -1 | sed 's/^[^:]*:[[:space:]]*//')
   TTL=$(head -10 "$1" | grep -i '^ttl_days:' | head -1 | sed 's/^[^:]*:[[:space:]]*//')
   LV_TS=$(date -d "$LV" +%s 2>/dev/null || echo 0)
-  PATHS=$(echo "$CLINE" | sed 's/^[Cc]overs:[[:space:]]*//' | tr ',' '\n' | sed 's/^ *//; s/ *$//')
+  PATHS=$(echo "$CLINE" | sed 's/^[Cc]overs:[[:space:]]*//; s/[[:space:]]*,[[:space:]]*/,/g; s/^[[:space:]]*//; s/[[:space:]]*$//')
   echo "$PATHS|$LV_TS|${TTL:-365}"
 }
 
 # Tính trạng thái 1 doc -> "STATE|REASON|LAG_DAYS"
+# SEMANTICS covers (thống nhất với hook): mỗi entry là FILE/DIR CÓ THẬT; match anchored.
 doc_state() {
   META=$(read_meta "$1")
   [ -n "$META" ] || { echo "NO-COVERS|doc khong gan code (chi hop le cho decision/vision)|0"; return; }
-  PATHS=$(echo "$META" | cut -d'|' -f1)
+  PATHS=$(echo "$META" | cut -d'|' -f1 | tr ',' ' ')
   LV_TS=$(echo "$META" | cut -d'|' -f2)
   TTL=$(echo "$META" | cut -d'|' -f3)
+  # Mốc verify hiệu lực = max(last_verified, lần commit cuối của CHÍNH doc) — sửa bug
+  # same-day vòng 8: doc commit cùng code lúc 14h, last_verified ghi ngày (=00h) -> false
+  # SUSPECT. Doc được commit nghĩa là đã đi qua cổng ghi cùng code đó.
+  DOC_TS=$(git log -1 --format=%ct -- "$1" 2>/dev/null || echo 0)
+  EFF_TS=$LV_TS
+  [ "$DOC_TS" -gt "$EFF_TS" ] && EFF_TS=$DOC_TS
   STATE="VERIFIED"; REASON="ok"; LAG=0
   for p in $PATHS; do
     [ -n "$p" ] || continue
     if [ ! -e "$p" ]; then echo "ORPHANED|path '$p' khong con ton tai|0"; return; fi
     CTS=$(git log -1 --format=%ct -- "$p" 2>/dev/null || echo 0)
-    if [ "$CTS" -gt "$LV_TS" ]; then
+    if [ "$CTS" -gt "$EFF_TS" ]; then
       L=$(( (NOW - CTS) / 86400 + 1 ))
       [ "$L" -gt "$LAG" ] && LAG=$L
       STATE="SUSPECT"; REASON="code '$p' doi sau last_verified"
     fi
+  done
+  # Symbol-level rot (EMSE 2024): doc nhắc `funcName(` mà symbol không còn trong covers
+  # -> SUSPECT kể cả khi path còn nguyên. Cap 20 symbol đầu để bound chi phí.
+  SYMS=$(grep -oE '`[A-Za-z_][A-Za-z0-9_]{2,}\(' "$1" 2>/dev/null | tr -d '`(' | sort -u | head -20)
+  for s in $SYMS; do
+    FOUND=0
+    for p in $PATHS; do
+      [ -e "$p" ] || continue
+      grep -rqF "$s" "$p" 2>/dev/null && { FOUND=1; break; }
+    done
+    [ "$FOUND" -eq 0 ] && { STATE="SUSPECT"; REASON="symbol '$s()' khong tim thay trong covers (co the da xoa/rename)"; }
   done
   if [ "$STATE" = "VERIFIED" ] && [ "$LV_TS" -gt 0 ]; then
     AGE=$(( (NOW - LV_TS) / 86400 ))
@@ -58,6 +78,32 @@ doc_state() {
   fi
   echo "$STATE|$REASON|$LAG"
 }
+
+# ── chế độ --self-test: fixture tổng hợp trong temp repo, bắt regression lớp Bug A/B ──
+if [ "$1" = "--self-test" ]; then
+  T=$(mktemp -d) && OLDPWD_ST=$(pwd) && cd "$T" || exit 1
+  git init -q . && git config user.email t@t.t && git config user.name t
+  mkdir -p src/a src/b docs/app-map
+  echo "function calcX() { return 1 }" > src/a/f.ts
+  echo "export const g = 2" > src/b/g.ts
+  printf '# 01 t\n> Load khi: test\ncovers: src/a, src/b\nlast_verified: %s\nttl_days: 90\n\nDung \140calcX(\140 va noi dung.\n' "$(date +%Y-%m-%d)" > docs/app-map/01-t.md
+  git add -A && git commit -qm c1
+  RC=0
+  ST=$(doc_state docs/app-map/01-t.md 2>/dev/null | cut -d'|' -f1)
+  [ "$ST" = "VERIFIED" ] && echo "PASS: multi-covers + same-day commit -> VERIFIED" || { echo "FAIL: mong VERIFIED, ra '$ST' (Bug A/B lop)"; RC=1; }
+  sleep 1; echo "// change" >> src/b/g.ts; git add src/b/g.ts; git commit -qm c2
+  ST=$(doc_state docs/app-map/01-t.md 2>/dev/null | cut -d'|' -f1)
+  [ "$ST" = "SUSPECT" ] && echo "PASS: code doi sau verify (multi-covers path 2) -> SUSPECT" || { echo "FAIL: mong SUSPECT, ra '$ST'"; RC=1; }
+  sed -i 's/calcX/deadFn/' docs/app-map/01-t.md && git add -A && git commit -qm c3
+  ST=$(doc_state docs/app-map/01-t.md 2>/dev/null)
+  echo "$ST" | grep -q "symbol 'deadFn()'" && echo "PASS: symbol chet -> SUSPECT" || { echo "FAIL: symbol chet khong bi bat ($ST)"; RC=1; }
+  git rm -rq src/a && git commit -qm c4
+  ST=$(doc_state docs/app-map/01-t.md 2>/dev/null | cut -d'|' -f1)
+  [ "$ST" = "ORPHANED" ] && echo "PASS: covers path xoa -> ORPHANED" || { echo "FAIL: mong ORPHANED, ra '$ST'"; RC=1; }
+  cd "$OLDPWD_ST" && rm -rf "$T"
+  [ "$RC" -eq 0 ] && echo "self-test: ALL PASS" || echo "self-test: CO FAIL"
+  exit $RC
+fi
 
 DOCS=$(git ls-files 'docs/app-map/*.md' 'docs/app-map/**/*.md' 2>/dev/null | grep -v '_generated/' | sort -u)
 
@@ -76,7 +122,18 @@ if [ "$1" = "--status" ]; then
       echo "| $doc | $(echo "$DS" | cut -d'|' -f1) | $(echo "$DS" | cut -d'|' -f2) |"
     done
   } > "$OUT"
-  echo "regenerated: $OUT"
+  # Marker trong CHÍNH doc (đóng đường đọc-trực-tiếp không qua /fl — STALE mitigation
+  # phải hiện ở mọi lối vào). Máy quản lý dòng này: xóa marker cũ, chèn lại nếu != VERIFIED.
+  # Marker để unstaged có chủ đích — commit tự nhiên ở lần doc được sửa/verify kế tiếp.
+  for doc in $DOCS; do
+    DS=$(doc_state "$doc")
+    ST=$(echo "$DS" | cut -d'|' -f1)
+    sed -i '/<!-- DOC-STATUS:/d' "$doc"
+    if [ "$ST" = "SUSPECT" ] || [ "$ST" = "ORPHANED" ]; then
+      sed -i "/^ttl_days:/a <!-- DOC-STATUS: $ST ($(date +%Y-%m-%d)) — $(echo "$DS" | cut -d'|' -f2). DOI CHIEU VOI CODE truoc khi tin. May quan ly dong nay, dung sua tay. -->" "$doc"
+    fi
+  done
+  echo "regenerated: $OUT (+ DOC-STATUS markers)"
   exit 0
 fi
 

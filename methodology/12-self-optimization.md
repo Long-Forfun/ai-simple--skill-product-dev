@@ -19,7 +19,7 @@ last_verified: 2026-06-12
 ttl_days: 180
 ```
 
-- `covers:` — danh sách path prefix (phẩy ngăn cách) mà doc này mô tả. **Doc không có covers = doc không được bảo vệ** (chỉ hợp lệ cho doc thuần quyết định/tầm nhìn không gắn code)
+- `covers:` — danh sách FILE/DIR **có thật** (phẩy ngăn cách) mà doc này mô tả; match anchored: đúng path đó hoặc mọi thứ bên dưới (`src/lib` KHÔNG khớp `src/lib-utils`). **Doc không có covers = doc không được bảo vệ.** Ngoại lệ hợp lệ (exemption list): README router của app-map, doc thuần decision/vision/ADR, `_generated/`. Tùy chọn `gate: warn` cho vùng code churn rất cao (mặc định block)
 - `last_verified:` — ngày lần cuối nội dung doc được đối chiếu với code thật (không phải ngày sửa doc!)
 - `ttl_days:` — hạn tin cậy THEO LOẠI doc: quickstart/flow hay đổi 90; architecture/decision 365. KHÔNG dùng một ngưỡng 30 ngày đồng loạt — tuổi không phải là mục (doc 300 ngày trên code không đổi vẫn VERIFIED)
 
@@ -36,7 +36,9 @@ ttl_days: 180
 
 **CỔNG GHI (per-commit, hook — đã ship trong template):** commit đổi code nằm trong `covers` của doc nào → doc đó PHẢI được sửa hoặc bump `last_verified` trong CÙNG commit (xác nhận "tôi đã check, nội dung vẫn đúng"). Đây là quy tắc same-commit mà toàn bộ bằng chứng hội tụ về — lỡ cửa sổ commit là doc sai trung bình nhiều năm.
 
-**CỔNG ĐỌC (verify-on-use, router + main agent):** context-router đánh dấu trạng thái từng doc trong output (đọc từ `_generated/doc-status.md` máy sinh). Doc SUSPECT → main agent **BẮT BUỘC đối chiếu các khẳng định nó sắp dựa vào với code thật trước khi dùng**, rồi bump `last_verified` ngay trong task đó. Doc sai có thể tồn tại lúc nằm yên — nhưng **không bao giờ lọt vào suy luận của agent mà chưa qua verify**. Đây là câu trả lời cho "không bao giờ sai logic / sai hàm / sai luồng lúc dùng": cái được đảm bảo là *thời điểm sử dụng*, bằng cơ chế, không bằng niềm tin.
+**CỔNG ĐỌC (verify-on-use, router + main agent):** context-router đánh dấu trạng thái từng doc trong output (đọc từ `_generated/doc-status.md` — hook regenerate MỖI COMMIT nên luôn fresh; không có status file → doc có covers bị coi là SUSPECT, **fail-closed**). Doc SUSPECT → main agent **BẮT BUỘC đối chiếu các khẳng định nó sắp dựa vào với code thật trước khi dùng** (bound phạm vi: chỉ các claim sắp dùng, không cả doc), rồi bump `last_verified` ngay trong task. `--status` còn chèn marker `<!-- DOC-STATUS: SUSPECT -->` vào CHÍNH doc — đường đọc trực tiếp không qua `/fl` cũng thấy cờ.
+
+**Ranh giới của lời bảo đảm (nói thẳng, không nói quá):** điều được đảm bảo bằng cơ chế là *sai sót không vượt qua được thời điểm sử dụng* khi: (1) doc-status fresh — hook regenerate mỗi commit, nên cửa sổ mù chỉ còn là thay đổi chưa commit; (2) agent đi qua `/fl` hoặc thấy marker trong doc; (3) agent tuân thủ lệnh verify — tầng cuối này là prompt-level, được gia cố bằng marker hiển thị tại chỗ (STALE: staleness phải machine-visible thì agent mới không tin tiền đề cũ) và bằng audit spot-check các lần bump (bump phải kèm commit message `re-verify(<doc>): <claims đã check>` — bump không có claims là red flag rubber-stamp). Đây là giảm rủi ro rất mạnh có điều kiện nêu rõ — không phải phép màu tuyệt đối, và chính vì nêu rõ điều kiện nên audit đo được từng điều kiện một.
 
 Chi phí cổng đọc tự giảm dần: mỗi lần verify là một lần bump `last_verified` → doc nóng (được dùng nhiều) gần như luôn VERIFIED; chỉ doc lạnh quay lại sau thời gian dài mới trả phí verify — đúng lúc đáng trả nhất.
 

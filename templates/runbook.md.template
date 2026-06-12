@@ -1,6 +1,9 @@
 # Runbook — {{SERVICE_NAME}}
 
 > Load khi: {{SERVICE_NAME}} không chạy / chạy sai / cần restart / cần kiểm tra sức khỏe.
+covers: {{path code cua service nay, vd modules/publisher, scripts/run.py}}
+last_verified: {{YYYY-MM-DD}}
+ttl_days: 90
 > Viết cho người đang cuống: mọi lệnh copy-paste được ngay, kèm output mong đợi.
 
 **Last updated**: {{YYYY-MM-DD}}

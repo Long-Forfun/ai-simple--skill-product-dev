@@ -1,6 +1,9 @@
 # State Registry — {{PROJECT_NAME}}
 
 > Load khi: cần đọc/ghi/sửa bất kỳ state file hoặc bảng trạng thái nào; hoặc đang debug sự cố liên quan trạng thái.
+covers: {{noi ghi/doc state, vd state, utils/state_manager.py}}
+last_verified: {{YYYY-MM-DD}}
+ttl_days: 180
 > Đây là registry CANONICAL (nguyên tắc 11 §3): state không có trong bảng này = coi như không tồn tại — KHÔNG đoán schema.
 
 **Last updated**: {{YYYY-MM-DD}}

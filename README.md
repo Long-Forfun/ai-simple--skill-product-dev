@@ -91,7 +91,7 @@ ai-simple--skill-product-dev/
 │   ├── 09-generated-vs-authored-docs.md # v2 — máy sinh "cái gì", người viết "tại sao"
 │   ├── 10-cross-repo-contract.md        # v2 — schema chung = contract đánh version
 │   ├── 11-ops-layer.md                  # v2.2 — runbook, state registry, routing sự cố
-│   └── 12-self-optimization.md          # v3.0 — nhịp bảo trì, tín hiệu→hành động, /audit
+│   └── 12-self-optimization.md          # v2(4.x) — coupling map covers/last_verified, 2 cổng verify, doc-lag, /audit
 └── templates/                   # Drop-in files. Quy ước placeholder: {{TÊN_HOA}} = trường BẮT BUỘC
                                  # điền khi copy; <chữ-thường> = ví dụ minh họa hoặc biến — thay bằng
                                  # nội dung thật khi viết, giữ nguyên nếu là pattern runtime (src/<module>/).
@@ -102,7 +102,7 @@ ai-simple--skill-product-dev/
     ├── context-router.agent.md.template
     ├── fl.command.md.template
     ├── pre-commit.hook.template         # v2 — enforcement hook (chạy được ngay với default Supabase)
-    ├── doc-health-report.sh.template    # v2 — report tuần: drift %, stale docs, broken links, lint
+    ├── doc-health-report.sh.template    # v4 — doc-lag, symbol chết, broken links, lint, --status, --self-test
     ├── runbook.md.template              # v2.2 — runbook per service chạy nền
     ├── state-registry.md.template       # v2.2 — registry canonical cho state files
     ├── ops-schedules.md.template        # v3.0 — registry mọi cron/scheduled job

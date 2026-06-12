@@ -16,7 +16,7 @@
 | 05 | [logic-vs-request.md](05-logic-vs-request.md) | Phân loại utterance |
 | 06 | [pre-flight-checklist.md](06-pre-flight-checklist.md) | **v3** — Risk tier GREEN/YELLOW/RED: tự chạy với default an toàn, confirm chỉ khi không thể quay đầu |
 | 07 | [memory-as-feedback.md](07-memory-as-feedback.md) | Persist preference cross-session |
-| 08 | [automated-enforcement.md](08-automated-enforcement.md) | **v2** — Hook chặn, lint cảnh báo, report đo drift |
+| 08 | [automated-enforcement.md](08-automated-enforcement.md) | **v2** — Hook chặn, lint cảnh báo, report đo doc-lag |
 | 09 | [generated-vs-authored-docs.md](09-generated-vs-authored-docs.md) | **v2** — Người viết "tại sao", máy sinh "cái gì" |
 | 10 | [cross-repo-contract.md](10-cross-repo-contract.md) | **v2** — Schema dùng chung = contract đánh version |
 | 11 | [ops-layer.md](11-ops-layer.md) | **v2.2** — Runbook per service, state registry, routing sự cố |
@@ -94,6 +94,6 @@ Cách biết phương pháp đang work:
 - Commit nhầm khi user chỉ discuss = 0
 
 **v2 — thu thập tự động, không đo tay** (chi tiết: [08-automated-enforcement.md](08-automated-enforcement.md) §Đo lường):
-- Drift % + staleness: script đọc git log, chạy tuần, gửi Telegram/Slack
+- Doc-lag + ORPHANED + symbol chết: doc-health-report (--ci fail PR; --status sinh doc-status.md cho cổng đọc)
 - Token budget trend: hook ghi size CLAUDE.md mỗi commit
 - Hallucination rate: bot triage đếm report "AI chẩn đoán sai do doc cũ"

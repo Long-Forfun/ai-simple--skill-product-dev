@@ -28,7 +28,7 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 7. **Memory as Feedback** — persist user preferences cross-session; user trả lời cùng loại câu hỏi 2 lần → ghi memory, không hỏi lại
 
 **Lớp scale & vận hành (v2 — bắt buộc khi phình to / có process chạy nền):**
-8. **Automated Enforcement** — pre-commit hook chặn (migration↔doc sync, token budget, contract version), CI lint cảnh báo, report tuần đo drift. Invariant tự giác = invariant sẽ chết
+8. **Automated Enforcement** — pre-commit hook chặn (migration↔doc sync, token budget, contract version), CI lint cảnh báo, report đo doc-lag (12 v2). Invariant tự giác = invariant sẽ chết
 9. **Generated vs Authored Docs** — người viết "tại sao" (decisions, invariants, flows); máy sinh "cái gì" (`_generated/schema.md`, `routes.md`, content-stats) từ source of truth thật, regenerate trong hook/CI
 10. **Cross-Repo Contract** — mỗi schema/file/utility dùng chung giữa nhiều repo có 1 file `docs/contracts/<name>.contract.md` ở producer, đánh version, consumers tự đăng ký; root CLAUDE.md hai đầu có bảng SYNC; mọi repo checkout cạnh nhau dưới 1 root khai báo tường minh
 11. **Ops Layer** — project có process chạy nền (cron/agent/pipeline) phải có `docs/app-map/ops/`: runbook per service (start/stop, health, log, lỗi thường gặp, escalation), state registry, schedules + external-services registry, routing "sự cố → runbook trước code"; fix sự cố → update runbook cùng commit
@@ -76,7 +76,7 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 - `templates/context-router.agent.md.template` — sub-agent definition
 - `templates/fl.command.md.template` — slash command
 - `templates/pre-commit.hook.template` — enforcement hook, chạy được ngay với default Supabase; cài versioned qua `.githooks/` + `core.hooksPath`; verify bằng `--self-test`
-- `templates/doc-health-report.sh.template` — report tuần: drift %, stale app-map, broken cross-ref, token budget, lint Load-khi/last-updated, _generated staleness
+- `templates/doc-health-report.sh.template` — đo doc-lag + symbol chết + broken cross-ref + token budget + lint; --status sinh doc-status.md; --ci fail PR; --self-test
 - `templates/runbook.md.template` — runbook per service chạy nền (5 mục tối thiểu)
 - `templates/state-registry.md.template` — registry canonical cho state files (1 writer/state, atomic write)
 - `templates/ops-schedules.md.template` — registry mọi cron/scheduled job (cơ chế, lệnh, cách verify đã chạy)

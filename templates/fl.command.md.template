@@ -17,7 +17,7 @@ KHÔNG code, KHÔNG explore source. Chỉ ROUTE context.
 
 Sau khi agent trả output → append 1 dòng vào `docs/.fl-routing-log` (tạo file nếu chưa có):
 `<YYYY-MM-DD> | <domain> | <danh sách file .md được route, cách nhau dấu phẩy>`
-— log này là số đo cho tín hiệu RETIRE (doc 90 ngày không được route tới, nguyên tắc 12).
+— log này cho audit quý biết doc nào "lạnh" (90 ngày không được route): để check router thiếu keyword và ưu tiên verify, KHÔNG phải để xóa (nguyên tắc 12 — doc sống theo code, không theo lượt đọc). Log COMMIT vào repo (append-only, như `docs/audit-history.md`) — gitignore nó thì audit trên fresh clone bị mù.
 
 Rồi đọc các file trong list và:
 - **GREEN**: code luôn.

@@ -1,25 +1,25 @@
-# {{NN}} â€” <Topic Title>
+# {{NN}} — <Topic Title>
 
-> **Má»¥c Ä‘Ã­ch / Purpose**: 1-2 cÃ¢u mÃ´ táº£ file nÃ y.
+> **Mục đích / Purpose**: 1-2 câu mô tả file này.
 
 **Load khi / Load when**: <e.g. designing/fixing X feature, or integrating Y with Z>
 
 ---
 
-## 1. State hiá»‡n táº¡i / Current state
+## 1. State hiện tại / Current state
 
 ### Data model
-- `<table_name>` â€” <description>
+- `<table_name>` — <description>
   - Fields: ...
   - Migration: [<filename>](../../<path>)
 
 ### Hooks / Modules
-- `useX()` â€” <one-line>
-- `useY()` â€” <one-line>
+- `useX()` — <one-line>
+- `useY()` — <one-line>
 
 ### UI
-- `{{Component}}` â€” <where used, mode props>
-- `{{OtherComponent}}` â€” ...
+- `{{Component}}` — <where used, mode props>
+- `{{OtherComponent}}` — ...
 
 ---
 
@@ -41,7 +41,7 @@
 ## 3. Diagrams (optional)
 
 ```
-[ASCII diagram náº¿u há»¯u Ã­ch]
+[ASCII diagram nếu hữu ích]
 ```
 
 ---
@@ -53,17 +53,17 @@
 
 ---
 
-## 5. Implementation status (náº¿u lÃ  feature Ä‘ang build)
+## 5. Implementation status (nếu là feature đang build)
 
 | # | Item | Status | Files / commit |
 |---|---|---|---|
-| 1 | ... | âœ… Done | <link> |
-| 2 | ... | ðŸŸ¡ In progress | <link> |
-| 3 | ... | âŒ Deferred | reason |
+| 1 | ... | ✅ Done | <link> |
+| 2 | ... | 🟡 In progress | <link> |
+| 3 | ... | ❌ Deferred | reason |
 
 ---
 
-## 6. History (náº¿u major change)
+## 6. History (nếu major change)
 
 - **v2** (2026-04-29): <what changed and why>
 - **v1** (2026-04-01): initial

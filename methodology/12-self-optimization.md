@@ -40,7 +40,8 @@ Tối ưu **theo sự kiện**, không chỉ theo lịch. Tín hiệu nào bắn
 | `/fl` route sai cùng 1 kiểu ≥ 2 lần | Update keyword map trong context-router agent | UPDATE router |
 | Sự cố cùng loại lần 2 | Thêm mục "lỗi thường gặp" vào runbook (11 §4) | UPDATE runbook |
 | User trả lời cùng câu hỏi lần 2 | Persist memory (07), không hỏi lại | UPDATE memory |
-| Doc không xuất hiện trong `docs/.fl-routing-log` 90 ngày (main agent append 1 dòng mỗi lần `/fl` — xem fl.command template) | Merge vào doc khác hoặc đánh dấu DEPRECATED — doc không ai đọc là token tax thuần | RETIRE |
+| **Doc mồ côi**: chủ thể không còn trong code — module/route/bảng/feature đã xóa hoặc bị thay thế (đo: doc tham chiếu entity không còn tồn tại — semantic verify của audit bắt được) | Đánh dấu DEPRECATED + ngày, giữ 1 tháng, xóa. CHỈ khai tử khi chủ thể đã chết — doc sống theo code, không sống theo lượt đọc | RETIRE |
+| Doc lạnh: không xuất hiện trong `docs/.fl-routing-log` 90 ngày NHƯNG chủ thể vẫn còn trong code | **KHÔNG xóa.** (a) Check keyword map của context-router — doc không được route nhiều khi là lỗi router thiếu keyword, không phải lỗi doc; (b) đưa vào danh sách verify của audit quý (lâu không ai đọc = lâu không ai bắt lỗi stale). Doc về module ổn định ít đụng chính là doc quý nhất lúc quay lại | UPDATE router / verify |
 | Semantic audit: doc mô tả sai căn bản so với code | **LÀM LẠI** file đó từ code thật — sửa vá doc sai nền tảng tốn hơn viết lại | REBUILD |
 | `08-app-structure-real.md` lệch folder thật | Regenerate từ filesystem (09) — đây là doc "cái gì", máy sinh | REBUILD (máy) |
 | Schema contract bump major version | Đợt sửa nguyên tử: producer + mọi consumer + contract changelog cùng ngày (10) | UPDATE đồng bộ |
@@ -52,8 +53,8 @@ Tối ưu **theo sự kiện**, không chỉ theo lịch. Tín hiệu nào bắn
 - **UPDATE**: nội dung đúng nền, lệch chi tiết → thêm/sửa entry, bump `v2 — date` history
 - **REFACTOR**: nội dung đúng nhưng cấu trúc sai cỡ (file quá to, cây quá phẳng) → tách/gộp, giữ nội dung, để stub `MOVED →`
 - **REBUILD**: nội dung sai căn bản hoặc là doc "cái gì" có thể máy sinh → viết lại từ source of truth, không vá
-- **RETIRE**: không ai (kể cả router) cần nữa → DEPRECATED + ngày, giữ 1 tháng, xóa
-- Mẹo: đọc 5 phút mà sửa được → UPDATE. Sửa 1 giờ không xong → REBUILD rẻ hơn. Không nhớ lần cuối ai đọc → RETIRE.
+- **RETIRE**: chủ thể của doc đã bị xóa khỏi code (mồ côi) → DEPRECATED + ngày, giữ 1 tháng, xóa. **Tuyệt đối không retire vì "lâu không ai đọc"** — doc tồn tại theo code, không theo lượt đọc; xóa doc của module còn sống = lúc code đụng lại mất sạch ngữ cảnh
+- Mẹo: đọc 5 phút mà sửa được → UPDATE. Sửa 1 giờ không xong → REBUILD rẻ hơn. Chủ thể đã biến mất khỏi codebase → RETIRE. Lạnh nhưng chủ thể còn sống → verify rồi để yên.
 
 ---
 
@@ -76,7 +77,8 @@ Quý 1 lần, chạy `/audit` (slash command, template: `templates/audit.command
 | Chỉ detect không heal (có report, không có owner + deadline) | Cảnh báo chồng đống → mù cảnh báo, hệ mục dần |
 | Vá doc sai nền tảng thay vì rebuild | Doc thành chăn vá — AI đọc tin nhầm phần cũ |
 | Tối ưu theo cảm hứng ("dạo này rảnh dọn docs") | Lúc bận nhất là lúc drift nặng nhất — phải theo nhịp + tín hiệu |
-| Giữ doc "biết đâu cần" không ai route tới | Token tax vĩnh viễn trên mọi index |
+| Giữ doc MỒ CÔI (chủ thể đã xóa khỏi code) "biết đâu cần" | Token tax + AI đọc tin vào feature không còn tồn tại |
+| Xóa doc chỉ vì lâu không ai đọc | Đốt trí nhớ của module còn sống — lúc code đụng lại mất sạch ngữ cảnh, phải reverse-engineer từ đầu |
 | Audit bằng cảm tính không kèm số đo | Điểm đẹp, hệ vẫn mục — bằng chứng đo được hoặc không tính |
 
 ---

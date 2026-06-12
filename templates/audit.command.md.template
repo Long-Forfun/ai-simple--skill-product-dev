@@ -22,7 +22,7 @@ Với mỗi nguyên tắc, chấm 0–10 kèm bằng chứng đo được (lện
 | 09 | Generated docs | `_generated/` tồn tại? cũ hơn migrations? (`git log -1 --format=%ct`) |
 | 10 | Contracts | mọi schema chia sẻ liên repo có contract? consumers list còn đúng? |
 | 11 | Ops | mọi process chạy nền có runbook? fire-drill: CHỈ chạy lệnh trong mục "Health check" của runbook, BỎ QUA mọi lệnh có side effect (ghi state, mutate, gọi API tốn quota) — ghi kết quả từng lệnh |
-| 12 | Self-optimization | `docs/audit-history.md` có entry kỳ trước? backlog kỳ trước đã xử lý chưa? `docs/.fl-routing-log` đang được append? doc nào vắng trong log 90 ngày (tín hiệu RETIRE)? |
+| 12 | Self-optimization | `docs/audit-history.md` có entry kỳ trước? backlog kỳ trước đã xử lý chưa? `docs/.fl-routing-log` đang được append? Doc MỒ CÔI (tham chiếu entity đã xóa khỏi code → RETIRE)? Doc lạnh 90 ngày mà chủ thể còn sống → check router keyword map thiếu gì + đưa vào danh sách verify, KHÔNG đề xuất xóa |
 
 ## Bước 2 — Semantic verify (doc nói có khớp code không)
 

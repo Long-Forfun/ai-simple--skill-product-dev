@@ -83,6 +83,26 @@ check_contract() {
 # Ví dụ / example:
 # check_contract 'modules/plan_writer\.py' 'docs/contracts/plan-json\.contract\.md'
 
+# ── 3b. Encoding guard: BOM / mojibake trong file .md|.template đã stage ──
+# Pattern build bằng printf octal — file hook KHÔNG được chứa literal mojibake, kể cả trong
+# comment (sẽ tự bắt chính mình). Bắt 4 chữ ký double-encode phổ biến nhất khi UTF-8 bị đọc
+# nhầm ANSI rồi ghi lại: dấu-a-hỏng x2, em-dash hỏng, chữ đ hỏng (bytes: C3A1C2BA, C3A1C2BB,
+# C3A2E282AC, C384E28098). Tiếng Việt sạch (kể cả chữ hoa có dấu ngã) KHÔNG khớp các chuỗi này.
+M1=$(printf '\303\241\302\272'); M2=$(printf '\303\241\302\273')
+M3=$(printf '\303\242\342\202\254'); M4=$(printf '\303\204\342\200\230')
+BOM=$(printf '\357\273\277')
+for f in $(echo "$CHANGED" | grep -E '\.(md|template)$' || true); do
+  git cat-file -e ":$f" 2>/dev/null || continue
+  if git show ":$f" | head -c 3 | grep -q "$BOM"; then
+    echo "BLOCK: $f bat dau bang UTF-8 BOM -> ghi lai khong BOM (PS 5.1 Set-Content them BOM, dung UTF8Encoding(false))."
+    FAIL=1
+  fi
+  if git show ":$f" | grep -qE "$M1|$M2|$M3|$M4"; then
+    echo "BLOCK: $f chua mojibake (UTF-8 bi doc nham ANSI roi ghi lai) -> restore tu git roi sua bang tool UTF-8 (sed/Edit), KHONG dung PS 5.1 Get/Set-Content."
+    FAIL=1
+  fi
+done
+
 # ── 4. WARN (không chặn): app-map file thiếu chuẩn ────────────────────
 for f in $(echo "$CHANGED" | grep -E 'docs/app-map/.*\.md$' | grep -v '_generated/' || true); do
   [ -f "$f" ] || continue

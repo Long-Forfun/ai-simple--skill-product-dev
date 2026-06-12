@@ -1,4 +1,4 @@
-# CLAUDE.md â€” {{PROJECT_NAME}}
+# CLAUDE.md — {{PROJECT_NAME}}
 
 > {{ONE_LINE_PROJECT_DESCRIPTION}}
 
@@ -8,20 +8,20 @@
 - Mobile: <e.g. Capacitor / React Native / N/A>
 - Hosting: <e.g. Vercel / Cloudflare / self-hosted>
 
-## Cáº¥u trÃºc
+## Cấu trúc
 ```
 {{PROJECT_ROOT}}/
-â”œâ”€â”€ src/
-â”‚   â”œâ”€â”€ <module-1>/    CLAUDE.md
-â”‚   â”œâ”€â”€ <module-2>/    CLAUDE.md
-â”‚   â””â”€â”€ ...
-â”œâ”€â”€ docs/
-â”‚   â”œâ”€â”€ app-map/       canonical specs (xem README bÃªn trong)
-â”‚   â””â”€â”€ decisions/     ADR
-â””â”€â”€ tests/
+├── src/
+│   ├── <module-1>/    CLAUDE.md
+│   ├── <module-2>/    CLAUDE.md
+│   └── ...
+├── docs/
+│   ├── app-map/       canonical specs (xem README bên trong)
+│   └── decisions/     ADR
+└── tests/
 ```
 
-## Quy táº¯c viáº¿t code
+## Quy tắc viết code
 1. <e.g. TypeScript strict mode>
 2. <e.g. Function components only>
 3. <e.g. Mobile-first responsive>
@@ -35,90 +35,90 @@
 Types: feat, fix, refactor, style, perf, test, docs, chore
 ```
 
-## Risk tiers (nguyÃªn táº¯c 06)
-- ðŸŸ¢ GREEN (reversible báº±ng git: code/UI/doc/test/viáº¿t file migration): Ä‘i tháº³ng, khÃ´ng há»i
-- ðŸŸ¡ YELLOW (reversible cÃ³ chá»§ Ä‘Ã­ch: báº£ng má»›i, cá»™t nullable, index `CONCURRENTLY`): tá»± lÃ m phÆ°Æ¡ng Ã¡n an toÃ n + down migration, ghi `## Assumptions` cuá»‘i task, KHÃ”NG há»i trÆ°á»›c
-- ðŸ”´ RED (khÃ´ng thá»ƒ quay Ä‘áº§u / ná»• á»Ÿ prod: DROP, ALTER máº¥t data, Ä‘á»•i RLS báº£ng Ä‘ang phá»¥c vá»¥ user, mutate data prod, Ä‘á»¥ng cron/edge fn ÄANG cháº¡y): Ä‘Ãºng 1 cÃ¢u confirm gá»™p kÃ¨m phÆ°Æ¡ng Ã¡n khuyáº¿n nghá»‹, Ä‘á»£i tráº£ lá»i
+## Risk tiers (nguyên tắc 06)
+- 🟢 GREEN (reversible bằng git: code/UI/doc/test/viết file migration): đi thẳng, không hỏi
+- 🟡 YELLOW (reversible có chủ đích: bảng mới, cột nullable, index `CONCURRENTLY`): tự làm phương án an toàn + down migration, ghi `## Assumptions` cuối task, KHÔNG hỏi trước
+- 🔴 RED (không thể quay đầu / nổ ở prod: DROP, ALTER mất data, đổi RLS bảng đang phục vụ user, mutate data prod, đụng cron/edge fn ĐANG chạy): đúng 1 câu confirm gộp kèm phương án khuyến nghị, đợi trả lời
 
-## KHÃ”NG ÄÆ¯á»¢C phÃ©p
+## KHÔNG ĐƯỢC phép
 - Hardcode secret / API key
 - Skip error handling cho async
 - Bypass auth/RLS
-- HÃ nh Ä‘á»™ng tier RED mÃ  khÃ´ng cÃ³ confirm: DROP / ALTER máº¥t data / ná»›i lá»ng hoáº·c Ä‘á»•i RLS báº£ng Ä‘ang phá»¥c vá»¥ user / mutate data prod / xÃ³a-sá»­a cron-edge fn Ä‘ang cháº¡y (additive + reversible â†’ tá»± lÃ m, bÃ¡o trong Assumptions)
-- Code mÃ  khÃ´ng update doc + test (xem invariant dÆ°á»›i)
+- Hành động tier RED mà không có confirm: DROP / ALTER mất data / nới lỏng hoặc đổi RLS bảng đang phục vụ user / mutate data prod / xóa-sửa cron-edge fn đang chạy (additive + reversible → tự làm, báo trong Assumptions)
+- Code mà không update doc + test (xem invariant dưới)
 
-## Báº®T BUá»˜C pháº£i
+## BẮT BUỘC phải
 - Validate input
 - Show loading state
-- Update doc + test CÃ™NG commit vá»›i code
-- TrÆ°á»›c feature lá»›n: Ä‘á»c `docs/app-map/21-feature-workflow.md` (náº¿u cÃ³)
-- TrÆ°á»›c test: Ä‘á»c `docs/app-map/22-test-organization.md` (náº¿u cÃ³)
+- Update doc + test CÙNG commit với code
+- Trước feature lớn: đọc `docs/app-map/21-feature-workflow.md` (nếu có)
+- Trước test: đọc `docs/app-map/22-test-organization.md` (nếu có)
 
 ---
 
-## Doc + Test sync â€” INVARIANT (khÃ´ng thoáº£ hiá»‡p)
+## Doc + Test sync — INVARIANT (không thoả hiệp)
 
-| Code change | Doc báº¯t buá»™c update |
+| Code change | Doc bắt buộc update |
 |---|---|
-| ThÃªm/xoÃ¡ file `src/<module>/` | `src/<module>/CLAUDE.md` |
-| Route má»›i | `docs/app-map/01-pages-and-navigation.md` (+ regenerate `_generated/routes.md` náº¿u cÃ³) |
+| Thêm/xoá file `src/<module>/` | `src/<module>/CLAUDE.md` |
+| Route mới | `docs/app-map/01-pages-and-navigation.md` (+ regenerate `_generated/routes.md` nếu có) |
 | Dialog/Form | `docs/app-map/02-dialogs-and-forms.md` |
-| Migration | `docs/app-map/03-database-and-automation.md` (+ regenerate `_generated/schema.md` náº¿u cÃ³) |
+| Migration | `docs/app-map/03-database-and-automation.md` (+ regenerate `_generated/schema.md` nếu có) |
 | Edge function | `docs/app-map/04-edge-functions.md` |
 | Permission/role | `docs/app-map/05-permissions-and-gates.md` |
-| Flow má»›i | `docs/app-map/06-user-flows.md` |
-| Quyáº¿t Ä‘á»‹nh kiáº¿n trÃºc | ADR `docs/decisions/NNNN-*.md` |
+| Flow mới | `docs/app-map/06-user-flows.md` |
+| Quyết định kiến trúc | ADR `docs/decisions/NNNN-*.md` |
 
-| Code change | Test báº¯t buá»™c |
+| Code change | Test bắt buộc |
 |---|---|
 | Hook/util | Unit test |
-| Component cÃ³ interaction | Component test |
-| Page/flow má»›i | E2E test |
+| Component có interaction | Component test |
+| Page/flow mới | E2E test |
 | Bug fix | Regression test `bug-fix-<slug>-YYYY-MM-DD.spec.*` |
-| Permission/RLS | E2E vá»›i role matrix |
+| Permission/RLS | E2E với role matrix |
 
-â†’ Skip test chá»‰ cho phÃ©p cho: pure UI tweak (color/spacing/copy), config-only, doc-only. Note rÃµ trong commit message.
+→ Skip test chỉ cho phép cho: pure UI tweak (color/spacing/copy), config-only, doc-only. Note rõ trong commit message.
 
-### Verify checklist trÆ°á»›c khi xong task
-- [ ] Doc updates Ä‘Ã£ Ä‘á»§
-- [ ] Test updates Ä‘Ã£ Ä‘á»§
-- [ ] Module CLAUDE.md count khá»›p `ls`
-- [ ] Cross-ref vÃ o index cÃ³ Ä‘áº§y Ä‘á»§
+### Verify checklist trước khi xong task
+- [ ] Doc updates đã đủ
+- [ ] Test updates đã đủ
+- [ ] Module CLAUDE.md count khớp `ls`
+- [ ] Cross-ref vào index có đầy đủ
 - [ ] `lint` + `test` pass
 
-â†’ Miss báº¥t ká»³ checkpoint = task chÆ°a xong.
+→ Miss bất kỳ checkpoint = task chưa xong.
 
 ---
 
 ## Module Context Files
-Khi lÃ m viá»‡c trong module â†’ Ä‘á»c CLAUDE.md tÆ°Æ¡ng á»©ng:
-- `src/<module-1>/CLAUDE.md` â€” <one-line>
-- `src/<module-2>/CLAUDE.md` â€” <one-line>
+Khi làm việc trong module → đọc CLAUDE.md tương ứng:
+- `src/<module-1>/CLAUDE.md` — <one-line>
+- `src/<module-2>/CLAUDE.md` — <one-line>
 - ...
 
-## Context routing â€” `/fl <task>`
-TrÆ°á»›c khi sá»­a/dev (task cháº¡m nhiá»u domain hoáº·c session má»›i) â†’ gá»i:
+## Context routing — `/fl <task>`
+Trước khi sửa/dev (task chạm nhiều domain hoặc session mới) → gọi:
 ```
-/fl <mÃ´ táº£ task>
+/fl <mô tả task>
 ```
-â†’ Spawn `context-router` agent â†’ output ordered list `.md` cáº§n Ä‘á»c + risk tier (GREEN/YELLOW: code luÃ´n, assumptions bÃ¡o cuá»‘i; RED: 1 cÃ¢u confirm gá»™p). Task trivial 1 file â†’ skip `/fl`.
+→ Spawn `context-router` agent → output ordered list `.md` cần đọc + risk tier (GREEN/YELLOW: code luôn, assumptions báo cuối; RED: 1 câu confirm gộp). Task trivial 1 file → skip `/fl`.
 
 Agent: `.claude/agents/context-router.md`. Slash: `.claude/commands/fl.md`.
 
-## Workflow trá»ng yáº¿u
-- Feature má»›i â†’ `docs/app-map/21-feature-workflow.md`
-- Test â†’ `docs/app-map/22-test-organization.md`
-- **Sá»± cá»‘ há»‡ thá»‘ng cháº¡y ná»n** ("X khÃ´ng cháº¡y/sáº­p") â†’ `docs/app-map/ops/runbook-X.md` TRÆ¯á»šC TIÃŠN, rá»“i má»›i tá»›i code (nguyÃªn táº¯c 11)
+## Workflow trọng yếu
+- Feature mới → `docs/app-map/21-feature-workflow.md`
+- Test → `docs/app-map/22-test-organization.md`
+- **Sự cố hệ thống chạy nền** ("X không chạy/sập") → `docs/app-map/ops/runbook-X.md` TRƯỚC TIÊN, rồi mới tới code (nguyên tắc 11)
 
-## Báº£o trÃ¬ Ä‘á»‹nh ká»³ â€” self-optimization (nguyÃªn táº¯c 12)
-| Nhá»‹p | Viá»‡c | Ai |
+## Bảo trì định kỳ — self-optimization (nguyên tắc 12)
+| Nhịp | Việc | Ai |
 |---|---|---|
-| Má»—i commit | hook: sync + budget + contract | MÃ¡y (tá»± Ä‘á»™ng) |
-| Tuáº§n / má»—i PR | `doc-health-report --ci`: drift, stale, broken ref | MÃ¡y (tá»± Ä‘á»™ng) |
-| ThÃ¡ng | Promote `20-recent-features` â†’ file riÃªng; root diet náº¿u â‰¥ 80% budget; consolidate memory; xá»­ lÃ½ WARN tá»“n | AI session (user Ä‘á»c 5') |
-| QuÃ½ | `/audit` â†’ Ä‘iá»ƒm 12 nguyÃªn táº¯c + semantic verify + backlog tá»‘i Æ°u | AI agent (user duyá»‡t backlog) |
+| Mỗi commit | hook: sync + budget + contract | Máy (tự động) |
+| Tuần / mỗi PR | `doc-health-report --ci`: drift, stale, broken ref | Máy (tự động) |
+| Tháng | Promote `20-recent-features` → file riêng; root diet nếu ≥ 80% budget; consolidate memory; xử lý WARN tồn | AI session (user đọc 5') |
+| Quý | `/audit` → điểm 12 nguyên tắc + semantic verify + backlog tối ưu | AI agent (user duyệt backlog) |
 
-TÃ­n hiá»‡u báº¯n giá»¯a ká»³ (file > 1500 dÃ²ng, drift < ngÆ°á»¡ng 2 tuáº§n, sá»± cá»‘ láº·p láº§n 2, doc 90 ngÃ y khÃ´ng ai route tá»›i...) â†’ tra báº£ng tÃ­n hiá»‡uâ†’hÃ nh Ä‘á»™ng trong nguyÃªn táº¯c 12, lÃ m ngay Ä‘á»«ng Ä‘á»£i lá»‹ch.
+Tín hiệu bắn giữa kỳ (file > 1500 dòng, drift < ngưỡng 2 tuần, sự cố lặp lần 2, doc 90 ngày không ai route tới...) → tra bảng tín hiệu→hành động trong nguyên tắc 12, làm ngay đừng đợi lịch.
 
 ## Quick commands
 ```bash
@@ -132,18 +132,18 @@ npm run test:e2e
 ---
 
 ## Memory (cross-session preferences)
-<!-- Memory sá»‘ng á»Ÿ thÆ° má»¥c memory cá»§a Claude Code (~/.claude/projects/<project-id>/memory/),
-     KHÃ”NG náº±m trong repo â€” xem nguyÃªn táº¯c 07. Má»¥c nÃ y chá»‰ liá»‡t kÃª quy Æ°á»›c Ä‘Ã¡ng nhá»›
-     mÃ  má»i AI session pháº£i tÃ´n trá»ng, khÃ´ng link file. -->
-- {{preference_1: vd "Telegram message luÃ´n tiáº¿ng Viá»‡t"}}
-- {{preference_2: vd "khÃ´ng bao giá» touch báº£ng X trá»±c tiáº¿p"}}
+<!-- Memory sống ở thư mục memory của Claude Code (~/.claude/projects/<project-id>/memory/),
+     KHÔNG nằm trong repo — xem nguyên tắc 07. Mục này chỉ liệt kê quy ước đáng nhớ
+     mà mọi AI session phải tôn trọng, không link file. -->
+- {{preference_1: vd "Telegram message luôn tiếng Việt"}}
+- {{preference_2: vd "không bao giờ touch bảng X trực tiếp"}}
 
 ---
 
 ## Context window management
-- File nÃ y < 6000 tokens
-- Tham chiáº¿u module/app-map thay vÃ¬ paste content
-- Náº¿u vÆ°á»£t â†’ tÃ¡ch ra app-map má»›i
+- File này < 6000 tokens
+- Tham chiếu module/app-map thay vì paste content
+- Nếu vượt → tách ra app-map mới
 
 ---
 

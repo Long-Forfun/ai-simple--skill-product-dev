@@ -1,6 +1,6 @@
 ---
 name: ai-simple-product-dev
-description: Methodology for organizing software projects to be AI-agent-friendly. Use when bootstrapping a new project, retrofitting docs structure for AI pair-programming, onboarding an AI agent to an existing codebase, or when the user reports symptoms like "AI hallucinates", "context too long", "docs out of sync with code", "Claude/Cursor doesn't understand my project", "docs drift as the project grows", "schema change broke another repo", "AI asks me to confirm every little thing", "nobody knows how to restart the bot", "docs were good once but nobody maintains them", "what should we optimize next". Provides hierarchical context, app-map pattern (with domain-tree scaling), context routing, doc+test sync invariant, LOGIC vs REQUEST classification, risk-tiered pre-flight (auto-proceed on reversible work, single batched confirm only at points of no return), memory-as-feedback, automated enforcement hooks, generated-vs-authored docs split, cross-repo contracts, ops runbooks, and a self-optimization loop (maintenance cadence, signal-to-action table, quarterly /audit that scores all principles and emits a ranked optimization backlog), plus ready-to-copy templates.
+description: Methodology for organizing software projects to be AI-agent-friendly. Use when bootstrapping a new project, retrofitting docs for AI pair-programming, onboarding an AI agent to an existing codebase, or when the user reports symptoms like "AI hallucinates", "context too long", "docs out of sync with code", "docs drift as the project grows", "schema change broke another repo", "AI asks me to confirm every little thing", "nobody knows how to restart the bot", "docs were good once but nobody maintains them", "what should we optimize next". Provides hierarchical context, app-map pattern, context routing, doc+test sync invariant, LOGIC vs REQUEST classification, risk-tiered pre-flight, memory-as-feedback, enforcement hooks, generated-vs-authored docs split, cross-repo contracts, ops runbooks, and a self-optimization loop with quarterly /audit, plus ready-to-copy templates.
 ---
 
 # AI-Simple Product Dev
@@ -32,7 +32,7 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 9. **Generated vs Authored Docs** — người viết "tại sao" (decisions, invariants, flows); máy sinh "cái gì" (`_generated/schema.md`, `routes.md`, content-stats) từ source of truth thật, regenerate trong hook/CI
 10. **Cross-Repo Contract** — mỗi schema/file/utility dùng chung giữa nhiều repo có 1 file `docs/contracts/<name>.contract.md` ở producer, đánh version, consumers tự đăng ký; root CLAUDE.md hai đầu có bảng SYNC; mọi repo checkout cạnh nhau dưới 1 root khai báo tường minh
 11. **Ops Layer** — project có process chạy nền (cron/agent/pipeline) phải có `docs/app-map/ops/`: runbook per service (start/stop, health, log, lỗi thường gặp, escalation), state registry, schedules + external-services registry, routing "sự cố → runbook trước code"; fix sự cố → update runbook cùng commit
-12. **Self-Optimization Loop** — hệ docs tự tiến hóa theo NHỊP (commit: hook / tuần: report --ci / tháng: promote buffer + root diet + consolidate memory / quý: `/audit`) và theo TÍN HIỆU (bảng tín hiệu→hành động: file >1500 dòng → tách; drift thấp 2 tuần → siết hook; doc 90 ngày không ai route → RETIRE; doc sai căn bản → REBUILD từ code, không vá). `/audit` agent tự chấm 12 nguyên tắc bằng số đo + semantic verify doc-vs-code → backlog tối ưu xếp hạng, ghi `_generated/audit-history.md` để theo dõi trend
+12. **Self-Optimization Loop** — hệ docs tự tiến hóa theo NHỊP (commit: hook / tuần: report --ci / tháng: promote buffer + root diet + consolidate memory / quý: `/audit`) và theo TÍN HIỆU (bảng tín hiệu→hành động: file >1500 dòng → tách; drift thấp 2 tuần → siết hook; doc 90 ngày không ai route → RETIRE; doc sai căn bản → REBUILD từ code, không vá). `/audit` (slash command) tự chấm 12 nguyên tắc bằng số đo + semantic verify doc-vs-code → backlog tối ưu xếp hạng, append `docs/audit-history.md` (log append-only, KHÔNG để trong `_generated/` vì không regenerate được) để theo dõi trend
 
 ## Workflow áp dụng
 
@@ -59,6 +59,13 @@ description: Methodology for organizing software projects to be AI-agent-friendl
 - `methodology/10-cross-repo-contract.md` — contract + bảng SYNC + path convention
 - `methodology/11-ops-layer.md` — runbook, state registry, incident routing
 - `methodology/12-self-optimization.md` — nhịp bảo trì, tín hiệu→hành động, update/refactor/rebuild/retire, `/audit`
+
+## Skill chuyên môn đi kèm
+
+- Project có UI → dùng skill `ui-design-logic` làm tầng chuyên môn design. Điểm móc 2 chiều
+  (DESIGN-SPEC là canonical doc trong app-map, routing task UI, sync invariant UI⇄spec⇄screenshot,
+  risk tier GREEN/YELLOW/RED cho việc design, hook check UI, drift routes-vs-screen-map vào `/audit`)
+  định nghĩa tại `ui-design-logic/references/07-integration-ai-simple.md` — nguồn sự thật duy nhất, không lặp ở đây
 
 ## Templates
 

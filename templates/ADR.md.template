@@ -1,7 +1,7 @@
-# ADR <NNNN> — <Decision Title>
+# ADR {{NNNN}} â€” <Decision Title>
 
 **Status**: Proposed | Accepted | Superseded by <ADR NNNN> | Deprecated
-**Date**: <YYYY-MM-DD>
+**Date**: {{YYYY-MM-DD}}
 **Deciders**: <names or roles>
 
 ---
@@ -10,7 +10,7 @@
 
 What is the issue we're seeing that motivates this decision?
 
-Vấn đề / tình huống dẫn đến quyết định này.
+Váº¥n Ä‘á» / tÃ¬nh huá»‘ng dáº«n Ä‘áº¿n quyáº¿t Ä‘á»‹nh nÃ y.
 
 ---
 
@@ -18,42 +18,42 @@ Vấn đề / tình huống dẫn đến quyết định này.
 
 What did we decide?
 
-Quyết định cuối cùng — 1 câu rõ ràng.
+Quyáº¿t Ä‘á»‹nh cuá»‘i cÃ¹ng â€” 1 cÃ¢u rÃµ rÃ ng.
 
 ---
 
-## Alternatives considered / Phương án đã cân nhắc
+## Alternatives considered / PhÆ°Æ¡ng Ã¡n Ä‘Ã£ cÃ¢n nháº¯c
 
 ### Option A: <name>
-- ✅ Pros / Ưu: ...
-- ❌ Cons / Nhược: ...
+- âœ… Pros / Æ¯u: ...
+- âŒ Cons / NhÆ°á»£c: ...
 
 ### Option B: <name>
-- ✅ Pros / Ưu: ...
-- ❌ Cons / Nhược: ...
+- âœ… Pros / Æ¯u: ...
+- âŒ Cons / NhÆ°á»£c: ...
 
-### Option C: <chosen> ← chosen / đã chọn
-- ✅ Pros / Ưu: ...
-- ❌ Cons / Nhược: ...
-
----
-
-## Consequences / Hệ quả
-
-### Positive / Tích cực
-- ...
-- ...
-
-### Negative / trade-offs / Tiêu cực / đánh đổi
-- ...
-- ...
-
-### Neutral / Trung tính
-- ...
+### Option C: <chosen> â† chosen / Ä‘Ã£ chá»n
+- âœ… Pros / Æ¯u: ...
+- âŒ Cons / NhÆ°á»£c: ...
 
 ---
 
-## Migration plan / Kế hoạch migrate (if applicable / nếu áp dụng)
+## Consequences / Há»‡ quáº£
+
+### Positive / TÃ­ch cá»±c
+- ...
+- ...
+
+### Negative / trade-offs / TiÃªu cá»±c / Ä‘Ã¡nh Ä‘á»•i
+- ...
+- ...
+
+### Neutral / Trung tÃ­nh
+- ...
+
+---
+
+## Migration plan / Káº¿ hoáº¡ch migrate (if applicable / náº¿u Ã¡p dá»¥ng)
 
 1. ...
 2. ...
@@ -64,13 +64,13 @@ Quyết định cuối cùng — 1 câu rõ ràng.
 ## References
 
 - Related ADRs: <ADR NNNN>
-- App-map: `docs/app-map/<NN-topic>.md`
+- App-map: `docs/app-map/{{NN-topic}}.md`
 - External: <links>
 
 ---
 
 ## History
 
-- **<YYYY-MM-DD>**: Proposed
-- **<YYYY-MM-DD>**: Accepted
-- **<YYYY-MM-DD>**: <if any change>
+- **{{YYYY-MM-DD}}**: Proposed
+- **{{YYYY-MM-DD}}**: Accepted
+- **{{YYYY-MM-DD}}**: <if any change>

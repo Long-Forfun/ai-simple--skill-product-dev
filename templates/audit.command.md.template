@@ -21,8 +21,8 @@ Với mỗi nguyên tắc, chấm 0–10 kèm bằng chứng đo được (lện
 | 08 | Enforcement | hook cài versioned chưa (`git config core.hooksPath`); `--self-test` pass? |
 | 09 | Generated docs | `_generated/` tồn tại? cũ hơn migrations? (`git log -1 --format=%ct`) |
 | 10 | Contracts | mọi schema chia sẻ liên repo có contract? consumers list còn đúng? |
-| 11 | Ops | mọi process chạy nền có runbook? lệnh health trong runbook CHẠY THỬ được không (fire-drill — chạy thật, ghi kết quả) |
-| 12 | Self-optimization | `_generated/audit-history.md` có entry kỳ trước? backlog kỳ trước đã xử lý chưa |
+| 11 | Ops | mọi process chạy nền có runbook? fire-drill: CHỈ chạy lệnh trong mục "Health check" của runbook, BỎ QUA mọi lệnh có side effect (ghi state, mutate, gọi API tốn quota) — ghi kết quả từng lệnh |
+| 12 | Self-optimization | `docs/audit-history.md` có entry kỳ trước? backlog kỳ trước đã xử lý chưa? `docs/.fl-routing-log` đang được append? doc nào vắng trong log 90 ngày (tín hiệu RETIRE)? |
 
 ## Bước 2 — Semantic verify (doc nói có khớp code không)
 
@@ -54,4 +54,4 @@ Duyệt bảng tín hiệu trong `methodology/12-self-optimization.md` (hoặc b
 <việc có tác động/effort tốt nhất, kèm lệnh/file cụ thể>
 ```
 
-Cuối cùng: append 1 dòng tóm tắt `<date> | <score>/120 | <top issue>` vào `docs/app-map/_generated/audit-history.md` (file duy nhất audit được phép ghi).
+Cuối cùng: append 1 dòng tóm tắt `<date> | <score>/120 | <top issue>` vào `docs/audit-history.md` (file DUY NHẤT audit được phép ghi — log append-only, cố ý nằm ngoài `_generated/` vì không regenerate được từ source).

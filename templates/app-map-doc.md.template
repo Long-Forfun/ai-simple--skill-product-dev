@@ -1,25 +1,25 @@
-# <NN> — <Topic Title>
+# {{NN}} â€” <Topic Title>
 
-> **Mục đích / Purpose**: 1-2 câu mô tả file này.
+> **Má»¥c Ä‘Ã­ch / Purpose**: 1-2 cÃ¢u mÃ´ táº£ file nÃ y.
 
 **Load khi / Load when**: <e.g. designing/fixing X feature, or integrating Y with Z>
 
 ---
 
-## 1. State hiện tại / Current state
+## 1. State hiá»‡n táº¡i / Current state
 
 ### Data model
-- `<table_name>` — <description>
+- `<table_name>` â€” <description>
   - Fields: ...
   - Migration: [<filename>](../../<path>)
 
 ### Hooks / Modules
-- `useX()` — <one-line>
-- `useY()` — <one-line>
+- `useX()` â€” <one-line>
+- `useY()` â€” <one-line>
 
 ### UI
-- `<Component>` — <where used, mode props>
-- `<OtherComponent>` — ...
+- `{{Component}}` â€” <where used, mode props>
+- `{{OtherComponent}}` â€” ...
 
 ---
 
@@ -41,33 +41,33 @@
 ## 3. Diagrams (optional)
 
 ```
-[ASCII diagram nếu hữu ích]
+[ASCII diagram náº¿u há»¯u Ã­ch]
 ```
 
 ---
 
 ## 4. Cross-references
 
-- See also: [<NN-related>](<NN-related>.md)
-- ADR: [<NNNN-decision>](../decisions/<NNNN>.md)
+- See also: [{{NN-related}}]({{NN-related}}.md)
+- ADR: [{{NNNN-decision}}](../decisions/{{NNNN}}.md)
 
 ---
 
-## 5. Implementation status (nếu là feature đang build)
+## 5. Implementation status (náº¿u lÃ  feature Ä‘ang build)
 
 | # | Item | Status | Files / commit |
 |---|---|---|---|
-| 1 | ... | ✅ Done | <link> |
-| 2 | ... | 🟡 In progress | <link> |
-| 3 | ... | ❌ Deferred | reason |
+| 1 | ... | âœ… Done | <link> |
+| 2 | ... | ðŸŸ¡ In progress | <link> |
+| 3 | ... | âŒ Deferred | reason |
 
 ---
 
-## 6. History (nếu major change)
+## 6. History (náº¿u major change)
 
 - **v2** (2026-04-29): <what changed and why>
 - **v1** (2026-04-01): initial
 
 ---
 
-**Last updated**: <YYYY-MM-DD>
+**Last updated**: {{YYYY-MM-DD}}

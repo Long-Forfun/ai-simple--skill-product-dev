@@ -15,7 +15,11 @@ Agent sẽ:
 
 KHÔNG code, KHÔNG explore source. Chỉ ROUTE context.
 
-Sau khi agent trả output → đọc các file trong list, rồi:
+Sau khi agent trả output → append 1 dòng vào `docs/.fl-routing-log` (tạo file nếu chưa có):
+`<YYYY-MM-DD> | <domain> | <danh sách file .md được route, cách nhau dấu phẩy>`
+— log này là số đo cho tín hiệu RETIRE (doc 90 ngày không được route tới, nguyên tắc 12).
+
+Rồi đọc các file trong list và:
 - **GREEN**: code luôn.
 - **YELLOW**: code luôn theo phương án an toàn (reversible bắt buộc), ghi mục `## Assumptions` trong báo cáo cuối — KHÔNG hỏi trước.
 - **RED**: hỏi đúng 1 câu confirm gộp của router (kèm phương án khuyến nghị), đợi trả lời rồi mới code phần RED — phần còn lại của task vẫn tự làm.

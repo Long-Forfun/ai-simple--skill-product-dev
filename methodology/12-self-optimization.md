@@ -40,7 +40,7 @@ Tối ưu **theo sự kiện**, không chỉ theo lịch. Tín hiệu nào bắn
 | `/fl` route sai cùng 1 kiểu ≥ 2 lần | Update keyword map trong context-router agent | UPDATE router |
 | Sự cố cùng loại lần 2 | Thêm mục "lỗi thường gặp" vào runbook (11 §4) | UPDATE runbook |
 | User trả lời cùng câu hỏi lần 2 | Persist memory (07), không hỏi lại | UPDATE memory |
-| Doc không được route tới trong 90 ngày | Merge vào doc khác hoặc đánh dấu DEPRECATED — doc không ai đọc là token tax thuần | RETIRE |
+| Doc không xuất hiện trong `docs/.fl-routing-log` 90 ngày (main agent append 1 dòng mỗi lần `/fl` — xem fl.command template) | Merge vào doc khác hoặc đánh dấu DEPRECATED — doc không ai đọc là token tax thuần | RETIRE |
 | Semantic audit: doc mô tả sai căn bản so với code | **LÀM LẠI** file đó từ code thật — sửa vá doc sai nền tảng tốn hơn viết lại | REBUILD |
 | `08-app-structure-real.md` lệch folder thật | Regenerate từ filesystem (09) — đây là doc "cái gì", máy sinh | REBUILD (máy) |
 | Schema contract bump major version | Đợt sửa nguyên tử: producer + mọi consumer + contract changelog cùng ngày (10) | UPDATE đồng bộ |
@@ -59,13 +59,13 @@ Tối ưu **theo sự kiện**, không chỉ theo lịch. Tín hiệu nào bắn
 
 ## Tự chấm điểm / Self-audit
 
-Quý 1 lần, chạy `/audit` (template: `templates/audit.command.md.template`) — agent read-only:
+Quý 1 lần, chạy `/audit` (slash command, template: `templates/audit.command.md.template`) — phiên audit read-only:
 1. Chấm 12 nguyên tắc 0–10 kèm bằng chứng đo được (size, count, git log) — không chấm cảm tính
 2. Semantic verify: chọn 3 doc authored rủi ro nhất, diff **khẳng định trong doc** với `_generated/` + code thật → liệt kê khẳng định sai
 3. Đối chiếu bảng tín hiệu trên: tín hiệu nào đang bắn mà chưa xử lý
 4. Output: **backlog tối ưu xếp hạng** (việc, loại U/R/R/R, effort, deadline đề xuất) — đây chính là câu trả lời "đến thời điểm này cần tối ưu cái gì"
 
-Điểm audit ghi vào `docs/app-map/_generated/audit-history.md` (máy ghi) — trend đi xuống 2 quý liên tiếp = hệ đang mục, ưu tiên backlog lên đầu sprint.
+Điểm audit append vào `docs/audit-history.md` — **log append-only, KHÔNG nằm trong `_generated/`** (nguyên tắc 09 định nghĩa `_generated/` là "regenerate được từ source bất kỳ lúc nào"; lịch sử audit không regenerate được, để trong đó sẽ bị `rm -rf _generated && gen-docs` xóa mất trend). Trend đi xuống 2 quý liên tiếp = hệ đang mục, ưu tiên backlog lên đầu sprint.
 
 ---
 
@@ -86,5 +86,5 @@ Quý 1 lần, chạy `/audit` (template: `templates/audit.command.md.template`) 
 - [ ] `.claude/commands/audit.md` tồn tại (copy từ template)
 - [ ] Lịch tháng/quý có trong root CLAUDE.md §Bảo trì định kỳ (template đã có sẵn mục này)
 - [ ] Bảng tín hiệu→hành động được root CLAUDE.md link tới (file này)
-- [ ] `_generated/audit-history.md` có ≥ 1 entry sau quý đầu
+- [ ] `docs/audit-history.md` có ≥ 1 entry sau quý đầu; `docs/.fl-routing-log` đang được append (tín hiệu RETIRE đo được)
 - [ ] Mỗi mục backlog audit có owner + deadline — không có thì chưa gọi là loop

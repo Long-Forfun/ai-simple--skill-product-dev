@@ -92,9 +92,9 @@ ai-simple--skill-product-dev/
 │   ├── 10-cross-repo-contract.md        # v2 — schema chung = contract đánh version
 │   ├── 11-ops-layer.md                  # v2.2 — runbook, state registry, routing sự cố
 │   └── 12-self-optimization.md          # v3.0 — nhịp bảo trì, tín hiệu→hành động, /audit
-└── templates/                   # Drop-in files. Quy ước placeholder: {{ĐIỀN_KHI_COPY}} = giá trị
-                                 # bạn điền lúc copy; <biến-runtime> = pattern thay đổi theo ngữ cảnh
-                                 # (vd src/<module>/) — giữ nguyên, không điền.
+└── templates/                   # Drop-in files. Quy ước placeholder: {{TÊN_HOA}} = trường BẮT BUỘC
+                                 # điền khi copy; <chữ-thường> = ví dụ minh họa hoặc biến — thay bằng
+                                 # nội dung thật khi viết, giữ nguyên nếu là pattern runtime (src/<module>/).
     ├── CLAUDE.md.template
     ├── app-map-README.md.template
     ├── app-map-doc.md.template

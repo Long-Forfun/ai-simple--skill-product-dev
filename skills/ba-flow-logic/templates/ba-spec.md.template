@@ -1,0 +1,108 @@
+# {{NN}} — ba-spec: {{Tên app / domain}}
+
+> Load khi: task chạm hành vi / nghiệp vụ / flow / acceptance của {{domain}}
+covers: {{src/feature-x, src/feature-y}}   — path prefix code hiện thực nghiệp vụ này, phẩy ngăn cách
+last_verified: {{YYYY-MM-DD}}              — ngày đối chiếu LẦN CUỐI với code/nhu cầu THẬT, không phải ngày sửa
+ttl_days: {{90 cho flow hay đổi | 180 cho domain ổn định}}
+
+> **Mục đích**: oracle HÀNH VI cho {{domain}} — định nghĩa USER nào làm nghiệp vụ gì, flow vào/ra sao, đúng-sai đo bằng AC nào. KHÔNG mô tả giao diện (việc của design-spec).
+
+---
+
+## 1. Vấn đề & JTBD
+- **Job**: Khi `<tình huống>`, `<loại user>` muốn `<động lực>`, để `<outcome>`.
+- **Vì sao làm bây giờ**: `<đau hiện tại / cơ hội>`
+- **Đo thành công bằng**: `<metric tổng>` (chi tiết từng nghiệp vụ ở §8)
+
+## 2. User registry (ĐIỂM XUẤT PHÁT — mọi thứ sau phục vụ 1 user cụ thể)
+| User (role/tier) | Là ai | Vòng đời (public/mới/quen/power) | Thiết bị/bối cảnh chính |
+|---|---|---|---|
+| `<chủ shop>` | chủ, toàn quyền | quen | desktop ở văn phòng |
+| `<nhân viên bán>` | tạo đơn, không duyệt | quen | mobile tại quầy |
+| `<kế toán>` | đối soát, xuất sổ | quen | desktop |
+| `<hệ thống/cron>` | actor tự động (nhắc, đồng bộ) | — | nền |
+
+> Liệt kê CẢ actor ngoài người: external system, cron, webhook. Mỗi actor là một nguồn/điểm nhận của flow.
+
+## 3. User × Nghiệp vụ (mỗi nghiệp vụ đúng 1 OWNER-USER)
+| # | Nghiệp vụ | Owner-user | User liên quan (cross) | Phụ thuộc NV | Tần suất | Ưu tiên |
+|---|---|---|---|---|---|---|
+| NV1 | `<Tạo đơn hàng>` | nhân viên bán | kế toán (đối soát) | — | cao | Must |
+| NV2 | `<Duyệt đơn>` | chủ shop | nhân viên (người tạo) | NV1 | trung | Must |
+| NV3 | `<Đối soát công nợ>` | kế toán | — | NV2 | thấp | Should |
+
+> Nghiệp vụ không gắn được owner = mồ côi → xoá hoặc gán lại (trừ nghiệp vụ tự động: owner = system-actor, xem references/01 Edge cases). **Phụ thuộc NV** (depends-on) = nghiệp vụ này cần nghiệp vụ kia xong trước (kể cả cùng user) → thành precondition Given của AC. Ưu tiên: MoSCoW (Must/Should/Could/Won't) hoặc RICE.
+
+## 4. Cross-user handoff map (chống cross lung tung / treo)
+| Chặng | Nghiệp vụ | Từ user | → User nhận | Điều kiện chuyển | Điểm kết nếu KHÔNG ai nhận |
+|---|---|---|---|---|---|
+| H1 | NV1→NV2 | nhân viên (tạo đơn) | chủ shop (duyệt) | đơn ở trạng thái "chờ duyệt" | đơn nằm hàng đợi >24h → nhắc (cron) |
+| H2 | NV2→NV3 | chủ shop (đã duyệt) | kế toán (ghi nợ) | đơn "đã duyệt" + có công nợ | — |
+
+> Mọi handoff phải có **người nhận + điều kiện + điểm kết khi treo**. Không có cột cuối = flow có thể treo.
+> **App 1 user / nghiệp vụ không cross** → ghi `N/A — không cross`, KHÔNG bịa handoff giả cho đủ bảng.
+
+## 5. Flows (per nghiệp vụ — Input → Steps → Output)
+### Flow NV1 — Tạo đơn hàng  · owner: nhân viên bán
+- **Start**: nhân viên ở trạng thái sẵn sàng nhận khách
+- **Input**: thông tin khách (có/mới), danh sách sản phẩm + số lượng
+- **Steps**: chọn/tạo khách → thêm sản phẩm → xác nhận → đơn tạo ở trạng thái "chờ duyệt"
+- **Output**: 1 đơn "chờ duyệt" + kho tạm giữ số lượng; handoff H1 sang chủ shop
+- **End**: đơn hiển thị trong hàng đợi duyệt
+- **Cross**: H1 (→ chủ shop)
+
+### Flow NV2 — Duyệt đơn · owner: chủ shop
+- **Start**: có đơn "chờ duyệt" trong hàng đợi
+- **Input**: đơn + tồn kho thực
+- **Steps**: xem đơn → đối chiếu tồn → Duyệt / Từ chối (kèm lý do)
+- **Output**: đơn "đã duyệt" (trừ kho thật, handoff H2) HOẶC "từ chối" (hoàn kho tạm, báo người tạo)
+- **End**: đơn rời hàng đợi, sang kế toán hoặc về người tạo
+
+> Mỗi nhánh (duyệt / từ chối) đều có điểm kết — không nhánh nào treo.
+
+## 6. Flow optimization log (bằng chứng đã tối ưu — cho /audit)
+| Flow | Candidate đã cân nhắc | Chọn / Loại | Lý do (theo rubric) | Đánh giá bởi | Conflict & xử (nếu có) |
+|---|---|---|---|---|---|
+| NV1 | A: tạo khách trước · B: thêm sản phẩm trước, khách sau | Chọn B | ít bước hơn cho khách quen (rubric #5) | Optimizer | — |
+| NV2 | A: duyệt rồi trừ kho · B: trừ kho lúc tạo | Loại B | B gây treo kho khi từ chối (rubric #3 no dead-end) | Optimizer + Domain-Specialist(kho) | Specialist veto B (sai chuẩn kho) → Orchestrator chốt A |
+
+## 7. Scope & Priority
+- **IN (MVP)**: `<NV1, NV2>`
+- **OUT (sau / không làm)**: `<NV3 để phase 2; không làm đa kho>`
+
+## 8. Success metric (definition-of-done đo được, mỗi nghiệp vụ)
+| Nghiệp vụ | Metric | Ngưỡng đạt |
+|---|---|---|
+| NV1 | thời gian tạo 1 đơn | ≤ 60s cho khách quen |
+| NV2 | đơn chờ duyệt tồn đọng | không đơn nào >24h chưa xử lý |
+
+## 9. Rules & Invariants (luôn đúng — triage gọi vi phạm = invariant break)
+| # | Rule | Edge case |
+|---|---|---|
+| R1 | Chỉ chủ shop duyệt được đơn | nhân viên cố duyệt → chặn |
+| R2 | Kho không bị trừ 2 lần cho 1 đơn | duyệt → từ chối → duyệt lại |
+| R3 | Đơn từ chối phải hoàn kho tạm trong cùng thao tác | mất mạng giữa chừng → không hoàn nửa vời |
+
+## 10. Acceptance Criteria — ORACLE (Given/When/Then · KHÔNG chứa từ UI · MỖI AC KÈM CÁCH TEST)
+> Luật ai-simple #04: spec sinh ra mà không test được = chưa xong. Mỗi AC khai `Test:` (loại test build sẽ viết) — **Then phải là điểm assert đo được bằng máy**. BA sở hữu test INTENT, build viết test CODE.
+
+### AC-1 — Tạo đơn cho khách quen  · Maps to flow: NV1  · Test: e2e
+- **Given** nhân viên đã đăng nhập và khách đã tồn tại
+- **When** chọn khách + thêm ≥1 sản phẩm còn tồn + xác nhận
+- **Then** một đơn trạng thái "chờ duyệt" được tạo, kho tạm giữ đúng số lượng, đơn xuất hiện trong hàng đợi duyệt của chủ shop
+- **Assert** (build kiểm): query đơn có status="chờ duyệt" + stock_reserved == số lượng + đơn nằm trong hàng đợi của owner
+
+### AC-2 — Từ chối đơn hoàn kho  · Maps to flow: NV2  · Test: integration
+- **Given** một đơn "chờ duyệt" đang giữ kho tạm
+- **When** chủ shop từ chối kèm lý do
+- **Then** đơn chuyển "từ chối", toàn bộ kho tạm được hoàn, người tạo nhận được thông báo lý do
+- **Assert** (build kiểm): status=="từ chối" + stock_reserved trở về 0 + tồn tại 1 notification cho người tạo
+
+> Mỗi AC: atomic · testable · map tới 1 flow · có `Test:` (e2e | integration | unit | manual — manual chỉ khi thật sự không tự động được, nêu lý do) · **Assert đo được** · không nói "nút"/"màn"/"màu". AC không chỉ ra được cách test = chưa xong, viết lại Then cho tới khi đo được.
+
+## 11. Assumptions (fail-closed) / Open questions (chỉ RED)
+- **Assumptions** (tự quyết khi thiếu info): `<vd: 1 đơn 1 khách; giá chốt lúc duyệt, không lúc tạo>`
+- **Open (RED — chờ user)**: `<vd: có cho phép sửa đơn sau khi duyệt? — ảnh hưởng R2, cần user chốt>`
+
+## History
+- v1 ({{YYYY-MM-DD}}): khởi tạo — `<phạm vi>`

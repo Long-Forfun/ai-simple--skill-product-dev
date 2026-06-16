@@ -1,0 +1,18 @@
+# triage.config — per-repo config cho ui-ux-triage (copy vào .claude/triage.config).
+# BỎ TRỐNG dòng nào muốn auto-discover. Parse KEY=value (không source).
+
+# Thư mục app-map (read-refs auto-discover từ đây nếu READ_REFS trống). Mặc định: docs/app-map
+APP_MAP_DIR=docs/app-map
+
+# Danh sách read-ref explicit (phẩy ngăn). Trống → auto-discover *.md trong APP_MAP_DIR.
+# Dùng khi muốn gate đúng một tập doc cốt lõi thay vì mọi .md.
+READ_REFS=
+
+# Script gửi telegram. Thiếu file → DEGRADE (ghi report ra file). Mặc định: scripts/notify-telegram.sh
+TELEGRAM=scripts/notify-telegram.sh
+
+# Nơi append triage-log. Mặc định: test-reports/triage/triage-log.md
+TRIAGE_LOG=test-reports/triage/triage-log.md
+
+# (ghi chú, không bắt buộc) — oracle paths nếu repo đặt chỗ lạ:
+#   ba-spec glob, design-spec glob — skill auto-glob trong APP_MAP_DIR theo tên *ba-spec*/*design-spec*/16-design-system

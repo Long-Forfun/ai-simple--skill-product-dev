@@ -1,0 +1,178 @@
+#!/bin/sh
+# pre-commit — Automated enforcement (nguyên tắc 08 / principle 08)
+#
+# CHẠY ĐƯỢC NGAY với default Supabase + Next.js. Sửa 3 biến CẤU HÌNH bên dưới cho project khác.
+# (Works out of the box for Supabase defaults. Edit the 3 CONFIG vars for other stacks.)
+#
+# Cài đặt KHUYẾN NGHỊ — versioned, mọi máy/agent đều bị enforce (xem 08 §hard-rules):
+#   mkdir -p .githooks
+#   cp templates/pre-commit.hook.template .githooks/pre-commit
+#   git config core.hooksPath .githooks
+#   git add .githooks   (commit cùng repo — máy clone mới chỉ cần chạy lại dòng git config)
+#
+# Cách cũ (1 máy — KHÔNG khuyến nghị, drift quay lại): cp vào .git/hooks/pre-commit
+#
+# Sau khi sửa config, verify: sh .githooks/pre-commit --self-test
+
+# ── CẤU HÌNH / CONFIG — sửa theo project ──────────────────────────────
+MIGRATIONS_PATTERN='supabase/migrations/.*\.sql$'         # prisma/migrations/.* | db/migrate/.* ...
+DB_DOC_PATTERN='docs/.*(database|db|schema).*\.md$'       # doc nào được tính là "doc database"
+CLAUDE_MD_CHAR_BUDGET=24000                               # ~6K tokens (EN ~4 chars/token; VN-heavy có thể hạ 20000)
+# Sample paths cho --self-test — đổi CÙNG LÚC với 2 pattern trên:
+SELF_TEST_MIGRATION_SAMPLE='supabase/migrations/0001_sample.sql'
+SELF_TEST_DOC_SAMPLE='docs/app-map/03-database-and-automation.md'
+
+if [ "$1" = "--self-test" ]; then
+  echo "ok: hook parse duoc."
+  RC=0
+  if echo "$SELF_TEST_MIGRATION_SAMPLE" | grep -qE "$MIGRATIONS_PATTERN" 2>/dev/null; then
+    echo "PASS: MIGRATIONS_PATTERN khop '$SELF_TEST_MIGRATION_SAMPLE'"
+  else
+    echo "FAIL: MIGRATIONS_PATTERN KHONG khop sample (pattern sai hoac ERE invalid) -> check 1 se silent no-op!"
+    RC=1
+  fi
+  if echo "$SELF_TEST_DOC_SAMPLE" | grep -qiE "$DB_DOC_PATTERN" 2>/dev/null; then
+    echo "PASS: DB_DOC_PATTERN khop '$SELF_TEST_DOC_SAMPLE'"
+  else
+    echo "FAIL: DB_DOC_PATTERN KHONG khop sample -> moi migration commit se bi block oan!"
+    RC=1
+  fi
+  echo "  BUDGET = $CLAUDE_MD_CHAR_BUDGET chars"
+  # Contract test matcher (CÙNG bảng với doc-health-report self-test — matcher tồn tại
+  # ở 2 file, bảng này là hợp đồng chung, nguyên tắc 10 áp cho nội bộ hệ):
+  M=$(echo "src/lib-utils/a.ts" | while read -r c; do case "$c" in "src/lib"|"src/lib"/*) echo 1;; esac; done)
+  [ -z "$M" ] && echo "PASS: matcher contract — sibling (src/lib-utils) KHONG khop src/lib" || { echo "FAIL: matcher overmatch sibling"; RC=1; }
+  M=$(echo "src/lib/x.ts" | while read -r c; do case "$c" in "src/lib"|"src/lib"/*) echo 1;; esac; done)
+  [ -n "$M" ] && echo "PASS: matcher contract — child (src/lib/x) khop" || { echo "FAIL: matcher miss child"; RC=1; }
+  # Fixture gate: warn — chạy flow thật trong temp repo, WARN nhưng KHÔNG chặn
+  HOOK_SELF="$0"; case "$HOOK_SELF" in /*) ;; *) HOOK_SELF="$(pwd)/$HOOK_SELF";; esac
+  TW=$(mktemp -d); OPW=$(pwd)
+  cd "$TW" && git init -q . && git config user.email t@t.t && git config user.name t
+  mkdir -p .githooks src/w docs/app-map
+  cp "$HOOK_SELF" .githooks/pre-commit && git config core.hooksPath .githooks
+  echo "a" > src/w/a.ts
+  printf '# w\n> Load khi: t\ncovers: src/w\ngate: warn\nlast_verified: 2026-01-01\nttl_days: 90\n' > docs/app-map/01-w.md
+  git add -A && git commit -qm setup >/dev/null 2>&1
+  echo "b" >> src/w/a.ts && git add src/w/a.ts
+  OUTW=$(git commit -m warntest 2>&1); RCW=$?
+  if [ "$RCW" -eq 0 ] && echo "$OUTW" | grep -q "WARN: code trong vung covers"; then
+    echo "PASS: gate: warn -> chi WARN, khong chan commit"
+  else
+    echo "FAIL: gate warn khong dung (exit=$RCW)"; RC=1
+  fi
+  cd "$OPW" && rm -rf "$TW"
+  exit $RC
+fi
+
+CHANGED=$(git diff --cached --name-only)
+FAIL=0
+
+# ── 1. Migration đổi → doc database phải đổi cùng commit ──────────────
+if echo "$CHANGED" | grep -qE "$MIGRATIONS_PATTERN"; then
+  if ! echo "$CHANGED" | grep -qiE "$DB_DOC_PATTERN"; then
+    echo "BLOCK: migration thay doi nhung doc database khong update."
+    echo "  -> Update docs/app-map/*database*.md (hoac regenerate _generated/schema.md) roi commit lai."
+    FAIL=1
+  fi
+fi
+
+# ── 1b. Covers-sync — CỔNG GHI của nguyên tắc 12 v2 ─────────────────────
+# Code đổi trong vùng `covers:` của doc nào -> doc đó PHẢI được sửa hoặc bump
+# `last_verified:` trong CÙNG commit. Bump = cam kết "tôi đã đối chiếu, nội dung vẫn đúng"
+# — commit message bump phải ghi re-verify(<doc>): <claims đã check> để audit spot-check được.
+# SEMANTICS covers (thống nhất với doc-health-report): mỗi entry là FILE hoặc DIR CÓ THẬT;
+# match = đúng path đó hoặc mọi thứ bên dưới nó ($p hoặc $p/*) — anchored, không phải prefix
+# chuỗi (src/lib KHÔNG khớp src/lib-utils). Tuỳ chọn frontmatter `gate: warn` để hạ xuống
+# cảnh báo cho vùng code churn cao (mặc định: block).
+for doc in $(git ls-files 'docs/app-map/*.md' 'docs/app-map/**/*.md' 2>/dev/null | grep -v '_generated/' | sort -u); do
+  [ -f "$doc" ] || continue
+  CLINE=$(head -10 "$doc" | grep -i '^covers:' | head -1)
+  [ -n "$CLINE" ] || continue
+  GATE=$(head -10 "$doc" | grep -i '^gate:' | head -1 | sed 's/^[^:]*:[[:space:]]*//' | tr -d ' ')
+  HIT=0
+  for p in $(echo "$CLINE" | sed 's/^[Cc]overs:[[:space:]]*//' | tr ',' '\n' | sed 's/^ *//; s/ *$//'); do
+    [ -n "$p" ] || continue
+    H=$(echo "$CHANGED" | while read -r c; do case "$c" in "$p"|"$p"/*) echo 1; break;; esac; done)
+    [ -n "$H" ] && { HIT=1; break; }
+  done
+  if [ "$HIT" -eq 1 ] && ! echo "$CHANGED" | grep -qx "$doc"; then
+    if [ "$GATE" = "warn" ]; then
+      echo "WARN: code trong vung covers cua '$doc' thay doi, doc chua duoc sua/re-verify (gate: warn)."
+    else
+      echo "BLOCK: code trong vung covers cua '$doc' thay doi nhung doc khong duoc sua/re-verify."
+      echo "  -> Sua noi dung; hoac da doi chieu thay van dung thi: bump 'last_verified:' + them dong"
+      echo "     <!-- re-verified: <date time> - <claims da check> --> (luon tao thay doi staged, ke ca re-verify cung ngay)"
+      echo "     va commit msg: re-verify($doc): <claims>. Roi commit lai."
+      FAIL=1
+    fi
+  fi
+done
+
+# ── 2. Root CLAUDE.md token budget ─────────────────────────────────────
+# Ratchet: chỉ check khi CLAUDE.md nằm trong commit — vi phạm tồn đọng được "ân hạn"
+# tới lần sửa kế tiếp (tránh hook fail mọi commit khi retrofit vào repo cũ).
+# Đo BLOB ĐÃ STAGE (git show :CLAUDE.md), không đo working tree — tránh block/pass oan
+# khi worktree khác staged. Guard cat-file: file đang bị staged-delete thì bỏ qua.
+if echo "$CHANGED" | grep -qx 'CLAUDE.md'; then
+  if git cat-file -e :CLAUDE.md 2>/dev/null; then
+    SIZE=$(git show :CLAUDE.md | wc -c | tr -d ' ')
+    if [ "$SIZE" -gt "$CLAUDE_MD_CHAR_BUDGET" ]; then
+      echo "BLOCK: CLAUDE.md (staged) ${SIZE} chars > budget ${CLAUDE_MD_CHAR_BUDGET} (~6K tokens)."
+      echo "  -> Tach bang/chi tiet ra docs/app-map/, root chi giu rule + pointer (nguyen tac 01 \"root diet\")."
+      FAIL=1
+    fi
+  fi
+fi
+
+# ── 3. Schema dùng chung đổi → contract phải đổi cùng commit (nguyên tắc 10) ──
+# Khai báo từng cặp schema→contract. Bỏ comment + sửa pattern cho mỗi schema chung.
+check_contract() {
+  if echo "$CHANGED" | grep -qE "$1"; then
+    if ! echo "$CHANGED" | grep -qE "$2"; then
+      echo "BLOCK: schema dung chung ($1) doi nhung contract ($2) khong update."
+      echo "  -> Update contract (bump version neu breaking) roi commit lai."
+      FAIL=1
+    fi
+  fi
+}
+# Ví dụ / example:
+# check_contract 'modules/plan_writer\.py' 'docs/contracts/plan-json\.contract\.md'
+
+# ── 3b. Encoding guard: BOM / mojibake trong file .md|.template đã stage ──
+# Pattern build bằng printf octal — file hook KHÔNG được chứa literal mojibake, kể cả trong
+# comment (sẽ tự bắt chính mình). Bắt 4 chữ ký double-encode phổ biến nhất khi UTF-8 bị đọc
+# nhầm ANSI rồi ghi lại: dấu-a-hỏng x2, em-dash hỏng, chữ đ hỏng (bytes: C3A1C2BA, C3A1C2BB,
+# C3A2E282AC, C384E28098). Tiếng Việt sạch (kể cả chữ hoa có dấu ngã) KHÔNG khớp các chuỗi này.
+M1=$(printf '\303\241\302\272'); M2=$(printf '\303\241\302\273')
+M3=$(printf '\303\242\342\202\254'); M4=$(printf '\303\204\342\200\230')
+BOM=$(printf '\357\273\277')
+for f in $(echo "$CHANGED" | grep -E '\.(md|template)$' || true); do
+  git cat-file -e ":$f" 2>/dev/null || continue
+  if git show ":$f" | head -c 3 | grep -q "$BOM"; then
+    echo "BLOCK: $f bat dau bang UTF-8 BOM -> ghi lai khong BOM (PS 5.1 Set-Content them BOM, dung UTF8Encoding(false))."
+    FAIL=1
+  fi
+  if git show ":$f" | grep -qE "$M1|$M2|$M3|$M4"; then
+    echo "BLOCK: $f chua mojibake (UTF-8 bi doc nham ANSI roi ghi lai) -> restore tu git roi sua bang tool UTF-8 (sed/Edit), KHONG dung PS 5.1 Get/Set-Content."
+    FAIL=1
+  fi
+done
+
+# ── 4. WARN (không chặn): app-map file thiếu chuẩn ────────────────────
+for f in $(echo "$CHANGED" | grep -E 'docs/app-map/.*\.md$' | grep -v '_generated/' || true); do
+  [ -f "$f" ] || continue
+  if ! head -5 "$f" | grep -qiE 'load (khi|when)'; then
+    echo "WARN: $f thieu dong 'Load khi/Load when' o dau file (nguyen tac 02)."
+  fi
+done
+
+# ── 5. Regenerate doc-status (cổng đọc luôn fresh — meta-rot guard) ─────
+# doc-status.md phải fresh theo COMMIT chứ không theo tuần; marker DOC-STATUS trong doc
+# được --status quản lý (xem report). Chỉ stage doc-status.md — KHÔNG auto-stage doc khác.
+if [ "$FAIL" -eq 0 ] && [ -f scripts/doc-health-report.sh ]; then
+  sh scripts/doc-health-report.sh --status --fast >/dev/null 2>&1 || true
+  [ -f docs/app-map/_generated/doc-status.md ] && git add docs/app-map/_generated/doc-status.md 2>/dev/null
+fi
+
+[ "$FAIL" -eq 1 ] && exit 1
+exit 0

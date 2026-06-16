@@ -1,0 +1,61 @@
+{
+  "skill_name": "ba-flow-logic",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "new-need-multi-user",
+      "prompt": "Tôi muốn làm hệ thống quản lý đơn hàng cho cửa hàng: có chủ shop, nhân viên bán hàng, và kế toán. Nhân viên tạo đơn, chủ duyệt, kế toán theo dõi công nợ. Giúp tôi phân tích nghiệp vụ.",
+      "expected_output": "Kích ba-flow-logic. Sinh ba-spec.md TRƯỚC mọi thứ khác: User registry ≥3 user (chủ/nhân viên/kế toán, + có thể cron nhắc hạn). User×Nghiệp vụ matrix với mỗi nghiệp vụ có đúng 1 owner-user. Cross-user handoff map cho Tạo→Duyệt→Công nợ, mỗi handoff có điều kiện + điểm kết khi treo. Mỗi flow có Input/Output + start/end. Tối ưu flow qua agent (nghiệp vụ công nợ → gọi Domain-Specialist kế toán). AC dạng Given/When/Then, KHÔNG chứa từ UI. KHÔNG vẽ màn/chọn màu (đó là ui-design-logic).",
+      "files": []
+    },
+    {
+      "id": 1,
+      "eval_name": "optimize-existing-flow",
+      "prompt": "Quy trình duyệt đơn hiện tại rối: nhân viên tạo đơn xong nhiều khi đơn nằm im không ai duyệt, có đơn bị duyệt 2 lần trừ kho 2 lần. Tối ưu lại flow giúp tôi.",
+      "expected_output": "Kích ba-flow-logic (tối ưu flow, không phải UI defect). Suggester đề biến thể; Optimizer chấm theo rubric → bắt đúng 2 bệnh: 'đơn nằm im' = handoff treo (thiếu điểm-kết-khi-treo → thêm nhắc/cron/quá-hạn), 'trừ kho 2 lần' = invariant vỡ (R: kho không trừ 2 lần/đơn). Domain-Specialist kho xác nhận giữ-tạm vs trừ-thật. Ghi candidate bị loại vào Flow optimization log. Output là AC + flow sửa trong ba-spec, KHÔNG sửa code.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "eval_name": "not-trigger-ui-design",
+      "prompt": "Trang dashboard của tôi nhìn rối và xấu, sửa giúp tôi cho đẹp và đồng bộ hơn.",
+      "expected_output": "KHÔNG kích ba-flow-logic. Đây là HOW-nhìn (giao diện) → ui-design-logic (hoặc ui-ux-triage nếu là defect trên màn đã chạy). BA chỉ vào khi là WHAT/WHY (user/nghiệp vụ/flow/acceptance), không phải 'làm đẹp'.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "eval_name": "reverse-handoff-from-triage",
+      "prompt": "Triage báo: code duyệt đơn chạy đúng y như spec, nhưng thực tế kế toán vẫn không đối soát được vì đơn duyệt xong không sinh bút toán công nợ. Spec không hề nhắc tới chuyện đó.",
+      "expected_output": "Nhận reverse handoff: code khớp spec mà vẫn sai → spec THIẾU (nhu cầu thiếu), KHÔNG sửa code. Thêm AC/flow cho 'duyệt đơn → sinh công nợ' (handoff H sang kế toán). Domain-Specialist kế toán soi bút toán cân. Tier: thêm AC mới = GREEN/YELLOW; nếu đổi AC duyệt đang chạy = RED → 1 ASK. Bump last_verified + ghi History.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "eval_name": "not-trigger-small-clear-change",
+      "prompt": "Đổi nhãn trạng thái đơn từ 'Chờ duyệt' thành 'Đang chờ' giúp tôi.",
+      "expected_output": "KHÔNG kích ba-flow-logic (và không cần BA). Đổi nhỏ đã rõ, không đổi hành vi/nghiệp vụ → build thẳng (đổi text/i18n). BA chỉ cho nhu cầu mơ hồ/mới hoặc thay đổi hành vi.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "eval_name": "defer-db-migration-not-spec",
+      "prompt": "Để làm nghiệp vụ công nợ thì phải thêm bảng debt và đổi cột status của orders thành enum mới, drop cột cũ. Làm luôn giúp tôi.",
+      "expected_output": "BA phân tích nghiệp vụ công nợ (flow/AC) thì được, NHƯNG phần migration (thêm bảng, drop/đổi cột mất dữ liệu) KHÔNG phải việc BA định nghĩa hay tự làm → defer ai-simple #06 (RED: irreversible) → 1 ASK gộp + đẩy việc schema sang đúng cổng. BA dừng ở WHAT (cần lưu công nợ, trạng thái nào), không quyết HOW-DB (DROP/ALTER). Không tự chế risk-tier.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "eval_name": "tiebreaker-display-is-design-not-ba",
+      "prompt": "Thêm cho tôi bộ lọc danh sách đơn theo trạng thái và khoảng ngày, sắp xếp mặc định theo mới nhất.",
+      "expected_output": "Tie-breaker WHAT/HOW: đây là cách HIỂN THỊ/truy cập dữ liệu ĐÃ CÓ (lọc/sắp xếp) — không có nghiệp vụ/rule/hành vi mới → KHÔNG kích ba-flow-logic, mà → ui-design-logic (screen/filter/density) hoặc build. BA chỉ vào nếu lọc kéo theo rule mới (vd 'kế toán chỉ được xem đơn đã chốt sổ' = quyền/rule → BA). Pin ranh giới: trình bày dữ liệu = design; rule/hành vi = BA.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "eval_name": "ba-spec-must-pass-gate",
+      "prompt": "Làm BA cho tính năng đặt lịch hẹn: khách đặt, lễ tân xác nhận. Xuất ba-spec.",
+      "expected_output": "ba-spec sinh ra phải: có frontmatter covers/last_verified/ttl_days + 'Load khi'; mỗi nghiệp vụ có owner-user; mỗi AC dạng G/W/T có `Test:` (e2e cho flow đặt-xác nhận) + `Assert` ĐỊNH LƯỢNG (vd status==\"đã xác nhận\", count slot>=1); không AC nào chứa từ UI. Chạy `bash ba-verify.sh` trên file output phải PASS exit 0. Nếu thiếu Test/Assert hoặc 0 AC → cổng BLOCK, coi như chưa xong.",
+      "files": []
+    }
+  ]
+}
